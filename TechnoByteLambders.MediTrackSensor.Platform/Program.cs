@@ -6,6 +6,10 @@ using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.Outbo
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
@@ -78,6 +82,10 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Monitoring
+builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 
 var app = builder.Build();
 
