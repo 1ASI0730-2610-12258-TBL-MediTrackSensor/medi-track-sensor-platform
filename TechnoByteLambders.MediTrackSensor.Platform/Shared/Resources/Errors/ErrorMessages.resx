@@ -28,4 +28,7 @@
   <data name="OperatorUpdateFailed" xml:space="preserve">
     <value>An error occurred while updating the operator.</value>
   </data>
+  <data name="SubscriptionNotFound" xml:space="preserve">
+    <value>Subscription not found.</value>
+  </data>
 </root>

@@ -1,11 +1,5 @@
 @TechnoByteLambders.MediTrackSensor.Platform_HostAddress = http://localhost:5089
 
-PUT {{TechnoByteLambders.MediTrackSensor.Platform_HostAddress}}/api/v1/operators/1
-Content-Type: application/json
-
-{
-  "schedule": "Lunes a Viernes 08:00-17:00",
-  "establishment_id": 1
-}
+DELETE {{TechnoByteLambders.MediTrackSensor.Platform_HostAddress}}/api/v1/subscriptions/1
 
 ###

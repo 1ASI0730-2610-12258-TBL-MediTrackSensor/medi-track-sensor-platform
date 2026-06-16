@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Infrastructure.Persistence.EFC.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Infrastructure.Persistence.EFC.Configuration;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Infrastructure.Persistence.EFC.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Interceptors;
 
@@ -22,6 +23,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         builder.ApplyIamConfiguration();
         builder.ApplyMonitoringConfiguration();
         builder.ApplyEstablishmentsConfiguration();
+        builder.ApplySubscriptionsConfiguration();
         builder.UseSnakeCaseNamingConvention();
     }
 }
