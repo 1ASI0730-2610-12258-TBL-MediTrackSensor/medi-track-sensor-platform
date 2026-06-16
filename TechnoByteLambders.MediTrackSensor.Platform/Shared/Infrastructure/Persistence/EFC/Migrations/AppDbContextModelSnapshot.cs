@@ -320,6 +320,58 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pers
                     b.Navigation("Location")
                         .IsRequired();
                 });
+
+            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Aggregates.Operator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AlertsAnswered")
+                        .HasColumnType("int")
+                        .HasColumnName("alerts_answered");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("EstablishmentId")
+                        .HasColumnType("int")
+                        .HasColumnName("establishment_id");
+
+                    b.Property<string>("Schedule")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("schedule");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("users_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_operators");
+
+                    b.HasIndex("EstablishmentId")
+                        .HasDatabaseName("i_x_operators_establishment_id");
+
+                    b.ToTable("operators");
+                });
+
+            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Aggregates.Operator", b =>
+                {
+                    b.HasOne("TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Aggregates.Establishment", null)
+                        .WithMany()
+                        .HasForeignKey("EstablishmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_operators_establishments_establishment_id");
+                });
 #pragma warning restore 612, 618
         }
     }

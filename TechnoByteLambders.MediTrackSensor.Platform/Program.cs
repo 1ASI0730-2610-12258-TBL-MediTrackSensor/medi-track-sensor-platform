@@ -94,6 +94,8 @@ builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 // Establishments
 builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
 builder.Services.AddScoped<IEstablishmentCommandService, EstablishmentCommandService>();
+builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
+builder.Services.AddScoped<IOperatorCommandService, OperatorCommandService>();
 
 var app = builder.Build();
 

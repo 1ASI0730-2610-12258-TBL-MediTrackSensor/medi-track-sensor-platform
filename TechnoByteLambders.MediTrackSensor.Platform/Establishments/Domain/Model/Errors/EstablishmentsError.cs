@@ -3,5 +3,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Mode
 public enum EstablishmentsError
 {
     EstablishmentCreationFailed,
+    OperatorNotFound,
+    OperatorUpdateFailed,
     InternalServerError
 }
