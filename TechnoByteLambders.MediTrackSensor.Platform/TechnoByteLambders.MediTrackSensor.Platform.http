@@ -1,11 +1,17 @@
 @TechnoByteLambders.MediTrackSensor.Platform_HostAddress = http://localhost:5089
 
-POST {{TechnoByteLambders.MediTrackSensor.Platform_HostAddress}}/api/v1/users/sign-in
+PUT {{TechnoByteLambders.MediTrackSensor.Platform_HostAddress}}/api/v1/devices/1/sensor-data
 Content-Type: application/json
 
 {
-  "email": "admin@meditrack.com",
-  "password": "Admin123!"
+  "temperature": 22.5,
+  "humidity": 45.0,
+  "light_intensity": 300.0,
+  "air_quality": 50.0,
+  "vibration": 0.5,
+  "atmospheric_pressure": 1013.25,
+  "suspended_particles": 12.0,
+  "door_status": "Closed"
 }
 
 ###

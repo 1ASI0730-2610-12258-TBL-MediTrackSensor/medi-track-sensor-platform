@@ -13,4 +13,10 @@
   <data name="InternalServerError" xml:space="preserve">
     <value>An unexpected error occurred.</value>
   </data>
+  <data name="DeviceNotFound" xml:space="preserve">
+    <value>Device not found.</value>
+  </data>
+  <data name="DeviceUpdateFailed" xml:space="preserve">
+    <value>An error occurred while updating the device sensor data.</value>
+  </data>
 </root>
