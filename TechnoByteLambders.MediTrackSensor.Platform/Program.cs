@@ -14,6 +14,10 @@ using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Command
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Infrastructure.Persistence.EFC.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
@@ -96,6 +100,10 @@ builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
 builder.Services.AddScoped<IEstablishmentCommandService, EstablishmentCommandService>();
 builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
 builder.Services.AddScoped<IOperatorCommandService, OperatorCommandService>();
+
+// Subscriptions
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionCommandService, SubscriptionCommandService>();
 
 var app = builder.Build();
 

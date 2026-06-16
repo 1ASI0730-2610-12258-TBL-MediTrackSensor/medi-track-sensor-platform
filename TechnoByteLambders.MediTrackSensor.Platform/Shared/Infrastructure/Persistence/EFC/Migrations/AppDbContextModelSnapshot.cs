@@ -372,6 +372,49 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pers
                         .IsRequired()
                         .HasConstraintName("f_k_operators_establishments_establishment_id");
                 });
+
+            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Aggregates.Subscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("Plan")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("plan");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_subscriptions");
+
+                    b.ToTable("subscriptions");
+                });
 #pragma warning restore 612, 618
         }
     }
