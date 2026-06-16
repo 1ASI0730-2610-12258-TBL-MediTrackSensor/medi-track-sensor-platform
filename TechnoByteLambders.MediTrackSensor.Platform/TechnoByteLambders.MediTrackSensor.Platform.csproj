@@ -8,13 +8,40 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8"/>
+        <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+        <PackageReference Include="Humanizer" Version="3.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Shared\Resources\CommonMessages.resx">
+            <DependentUpon>CommonMessages.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Shared\Resources\CommonMessages.es.resx">
+            <DependentUpon>CommonMessages.cs</DependentUpon>
+        </EmbeddedResource>
+
+        <EmbeddedResource Update="Shared\Resources\Errors\ErrorMessages.resx">
+            <DependentUpon>ErrorMessages.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Shared\Resources\Errors\ErrorMessages.es.resx">
+            <DependentUpon>ErrorMessages.cs</DependentUpon>
+        </EmbeddedResource>
     </ItemGroup>
 
 </Project>
