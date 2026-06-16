@@ -7,6 +7,10 @@
     <value>La operación fue cancelada.</value>
   </data>
 
-  <!-- TODO: cada integrante agrega aquí la traducción al español de sus claves -->
-
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Correo o contraseña inválidos.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error inesperado.</value>
+  </data>
 </root>
