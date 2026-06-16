@@ -38,5 +38,23 @@ public static class EstablishmentsContextConfiguration
                 .HasConversion(v => v.Value, v => new AdminId(v))
                 .HasColumnName("admin_id");
         });
+
+        builder.Entity<Operator>(entity =>
+        {
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.Id).HasColumnName("id");
+            entity.Property(o => o.AlertsAnswered).HasColumnName("alerts_answered").IsRequired();
+            entity.Property(o => o.Schedule).HasColumnName("schedule").IsRequired().HasMaxLength(100);
+            entity.Property(o => o.EstablishmentId).HasColumnName("establishment_id").IsRequired();
+
+            entity.Property(o => o.UserId)
+                .HasConversion(v => v.Value, v => new UserId(v))
+                .HasColumnName("users_id");
+
+            entity.HasOne<Establishment>()
+                .WithMany()
+                .HasForeignKey(o => o.EstablishmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
