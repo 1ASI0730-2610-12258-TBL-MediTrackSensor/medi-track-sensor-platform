@@ -1,17 +1,21 @@
 @TechnoByteLambders.MediTrackSensor.Platform_HostAddress = http://localhost:5089
 
-PUT {{TechnoByteLambders.MediTrackSensor.Platform_HostAddress}}/api/v1/devices/1/sensor-data
+POST {{TechnoByteLambders.MediTrackSensor.Platform_HostAddress}}/api/v1/establishments
 Content-Type: application/json
 
 {
-  "temperature": 22.5,
-  "humidity": 45.0,
-  "light_intensity": 300.0,
-  "air_quality": 50.0,
-  "vibration": 0.5,
-  "atmospheric_pressure": 1013.25,
-  "suspended_particles": 12.0,
-  "door_status": "Closed"
+  "establishment_name": "Clinica Central",
+  "establishment_type": "Clinic",
+  "address": "Av. Principal 123",
+  "district": "Miraflores",
+  "city_region": "Lima",
+  "country": "Peru",
+  "latitude": -12.12150000,
+  "longitude": -77.02820000,
+  "phone": "999888777",
+  "email": "contacto@clinicacentral.com",
+  "website": "https://clinicacentral.com",
+  "admin_id": 1
 }
 
 ###

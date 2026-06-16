@@ -194,6 +194,132 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pers
                     b.Navigation("SensorReading")
                         .IsRequired();
                 });
+
+            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Aggregates.Establishment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("EstablishmentName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("establishment_name");
+
+                    b.Property<string>("EstablishmentType")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("establishment_type");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("varchar(15)")
+                        .HasColumnName("phone");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("website");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_establishments");
+
+                    b.ToTable("establishments");
+
+                    b.OwnsOne("TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<int>("EstablishmentId")
+                                .HasColumnType("int")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("CityRegion")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("varchar(100)")
+                                .HasColumnName("city_region");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("varchar(100)")
+                                .HasColumnName("country");
+
+                            b1.Property<string>("District")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("varchar(100)")
+                                .HasColumnName("district");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("varchar(200)")
+                                .HasColumnName("address");
+
+                            b1.HasKey("EstablishmentId")
+                                .HasName("p_k_establishments");
+
+                            b1.ToTable("establishments");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EstablishmentId")
+                                .HasConstraintName("f_k_establishments_establishments_id");
+                        });
+
+                    b.OwnsOne("TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.ValueObjects.Location", "Location", b1 =>
+                        {
+                            b1.Property<int>("EstablishmentId")
+                                .HasColumnType("int")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasPrecision(10, 8)
+                                .HasColumnType("decimal(10,8)")
+                                .HasColumnName("latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasPrecision(11, 8)
+                                .HasColumnType("decimal(11,8)")
+                                .HasColumnName("longitude");
+
+                            b1.HasKey("EstablishmentId")
+                                .HasName("p_k_establishments");
+
+                            b1.ToTable("establishments");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EstablishmentId")
+                                .HasConstraintName("f_k_establishments_establishments_id");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
+
+                    b.Navigation("Location")
+                        .IsRequired();
+                });
 #pragma warning restore 612, 618
         }
     }

@@ -6,6 +6,10 @@ using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.Outbo
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Repositories;
@@ -86,6 +90,10 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 // Monitoring
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
+
+// Establishments
+builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
+builder.Services.AddScoped<IEstablishmentCommandService, EstablishmentCommandService>();
 
 var app = builder.Build();
 

@@ -19,4 +19,7 @@
   <data name="DeviceUpdateFailed" xml:space="preserve">
     <value>Ocurrió un error al actualizar los datos del sensor del dispositivo.</value>
   </data>
+  <data name="EstablishmentCreationFailed" xml:space="preserve">
+    <value>Ocurrió un error al crear el establecimiento.</value>
+  </data>
 </root>
