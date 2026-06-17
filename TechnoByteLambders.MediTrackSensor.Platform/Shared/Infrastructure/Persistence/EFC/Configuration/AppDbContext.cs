@@ -24,6 +24,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         builder.ApplyMonitoringConfiguration();
         builder.ApplyEstablishmentsConfiguration();
         builder.ApplySubscriptionsConfiguration();
+
         builder.UseSnakeCaseNamingConvention();
     }
 }
