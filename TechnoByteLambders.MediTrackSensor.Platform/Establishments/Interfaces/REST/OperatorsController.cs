@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Errors;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Queries;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.REST.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.REST.Transform;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
@@ -10,11 +12,19 @@ using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared
 namespace TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/operators")]
+[Route("api/v1/[controller]")]
 public class OperatorsController(
     IOperatorCommandService operatorCommandService,
+    IOperatorQueryService queryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var items = await queryService.Handle(new GetAllOperatorsQuery(), ct);
+        return Ok(items.Select(OperatorResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(
         int id,

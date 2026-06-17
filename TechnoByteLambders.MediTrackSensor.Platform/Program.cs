@@ -8,6 +8,8 @@ using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundSer
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
@@ -100,6 +102,7 @@ builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
 builder.Services.AddScoped<IEstablishmentCommandService, EstablishmentCommandService>();
 builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
 builder.Services.AddScoped<IOperatorCommandService, OperatorCommandService>();
+builder.Services.AddScoped<IOperatorQueryService, OperatorQueryService>();
 
 // Subscriptions
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
