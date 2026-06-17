@@ -7,6 +7,8 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Com
 
 public interface IDeviceCommandService
 {
+    Task<Result<Device, string>> Handle(CreateDeviceCommand command, CancellationToken cancellationToken = default);
+    
     Task<Result<Device, MonitoringError>> Handle(
         UpdateDeviceSensorDataCommand command,
         CancellationToken cancellationToken = default);

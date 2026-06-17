@@ -16,6 +16,19 @@ public class DevicesController(
     IDeviceCommandService deviceCommandService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateDeviceResource resource, CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<TypeOfMedication>(resource.TypeOfMedication, true, out var medication))
+            return BadRequest(new { error = "Invalid TypeOfMedication value." });
+
+        var result = await deviceCommandService.Handle(
+            new CreateDeviceCommand(resource.ExactLocation, medication, resource.EstablishmentId, resource.EnabledSensors ?? ""), cancellationToken);
+
+        if (result.IsFailure) return BadRequest(new { error = ((dynamic)result).Error });
+        return Ok(DeviceResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
+    }
+
     [HttpPut("{id:int}/sensor-data")]
     public async Task<IActionResult> UpdateSensorData(
         int id,

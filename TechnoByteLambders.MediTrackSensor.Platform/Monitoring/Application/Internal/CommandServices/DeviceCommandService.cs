@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Aggregates;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Commands;
@@ -12,6 +13,20 @@ public class DeviceCommandService(
     IDeviceRepository deviceRepository,
     IUnitOfWork unitOfWork) : IDeviceCommandService
 {
+    public async Task<Result<Device, string>> Handle(CreateDeviceCommand command, CancellationToken cancellationToken = default)
+    {
+        var device = new Device(command);
+        try
+        {
+            await deviceRepository.AddAsync(device, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return new Result<Device, string>.Success(device);
+        }
+        catch (OperationCanceledException) { return new Result<Device, string>.Failure(MonitoringErrors.DeviceCreationFailed.Description); }
+        catch (DbUpdateException) { return new Result<Device, string>.Failure(MonitoringErrors.DeviceCreationFailed.Description); }
+        catch (Exception) { return new Result<Device, string>.Failure(MonitoringErrors.DeviceCreationFailed.Description); }
+    }
+
     public async Task<Result<Device, MonitoringError>> Handle(
         UpdateDeviceSensorDataCommand command,
         CancellationToken cancellationToken = default)
