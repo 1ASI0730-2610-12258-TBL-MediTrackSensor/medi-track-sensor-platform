@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Aggregates;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Errors;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Repositories;
 
@@ -10,23 +13,17 @@ public class SubscriptionCommandService(
     ISubscriptionRepository subscriptionRepository,
     IUnitOfWork unitOfWork) : ISubscriptionCommandService
 {
-    public async Task<Result<bool, SubscriptionsError>> DeleteAsync(
-        int id,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<Subscription, string>> Handle(CreateSubscriptionCommand command, CancellationToken cancellationToken = default)
     {
-        var subscription = await subscriptionRepository.FindByIdAsync(id, cancellationToken);
-        if (subscription is null)
-            return new Result<bool, SubscriptionsError>.Failure(SubscriptionsError.SubscriptionNotFound);
-
+        var subscription = new Subscription(command);
         try
         {
-            subscriptionRepository.Remove(subscription);
+            await subscriptionRepository.AddAsync(subscription, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
-            return new Result<bool, SubscriptionsError>.Success(true);
+            return new Result<Subscription, string>.Success(subscription);
         }
-        catch (Exception)
-        {
-            return new Result<bool, SubscriptionsError>.Failure(SubscriptionsError.InternalServerError);
-        }
+        catch (OperationCanceledException) { return new Result<Subscription, string>.Failure(SubscriptionsErrors.SubscriptionCreationFailed.Description); }
+        catch (DbUpdateException) { return new Result<Subscription, string>.Failure(SubscriptionsErrors.SubscriptionCreationFailed.Description); }
+        catch (Exception) { return new Result<Subscription, string>.Failure(SubscriptionsErrors.SubscriptionCreationFailed.Description); }
     }
 }

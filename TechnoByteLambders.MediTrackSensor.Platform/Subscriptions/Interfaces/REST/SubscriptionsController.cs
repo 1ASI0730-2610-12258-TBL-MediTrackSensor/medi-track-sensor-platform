@@ -1,44 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
-using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Errors;
-using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared.Interfaces.REST.ProblemDetails.ProblemDetailsFactory;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Commands;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.ValueObjects;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST.Resources;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST.Transform;
 
 namespace TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/subscriptions")]
-public class SubscriptionsController(
-    ISubscriptionCommandService subscriptionCommandService,
-    ProblemDetailsFactory problemDetailsFactory) : ControllerBase
+[Route("api/v1/[controller]")]
+public class SubscriptionsController(ISubscriptionCommandService commandService) : ControllerBase
 {
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateSubscriptionResource resource, CancellationToken ct)
     {
-        var result = await subscriptionCommandService.DeleteAsync(id, cancellationToken);
+        if (!Enum.TryParse<SubscriptionPlan>(resource.Plan, true, out var plan))
+            return BadRequest(new { error = "Invalid Plan value." });
 
-        return result switch
-        {
-            Result<bool, SubscriptionsError>.Success => NoContent(),
-            Result<bool, SubscriptionsError>.Failure failure =>
-                failure.Error switch
-                {
-                    SubscriptionsError.SubscriptionNotFound => problemDetailsFactory.CreateProblemDetails(
-                        this,
-                        StatusCodes.Status404NotFound,
-                        SubscriptionsError.SubscriptionNotFound,
-                        SubscriptionsErrors.SubscriptionNotFound.Description),
-                    _ => problemDetailsFactory.CreateProblemDetails(
-                        this,
-                        StatusCodes.Status500InternalServerError,
-                        SubscriptionsError.InternalServerError,
-                        SubscriptionsErrors.InternalServerError.Description)
-                },
-            _ => problemDetailsFactory.CreateProblemDetails(
-                this,
-                StatusCodes.Status500InternalServerError,
-                SubscriptionsError.InternalServerError,
-                SubscriptionsErrors.InternalServerError.Description)
-        };
+        var result = await commandService.Handle(
+            new CreateSubscriptionCommand(plan, resource.StartDate, resource.EndDate, resource.AdminId), ct);
+        if (result.IsFailure) return BadRequest(new { error = ((dynamic)result).Error });
+        return Ok(SubscriptionResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
     }
 }

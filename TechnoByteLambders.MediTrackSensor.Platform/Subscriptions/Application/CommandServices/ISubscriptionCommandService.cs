@@ -1,11 +1,10 @@
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Errors;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Aggregates;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Commands;
 
 namespace TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
 
 public interface ISubscriptionCommandService
 {
-    Task<Result<bool, SubscriptionsError>> DeleteAsync(
-        int id,
-        CancellationToken cancellationToken = default);
+    Task<Result<Subscription, string>> Handle(CreateSubscriptionCommand command, CancellationToken cancellationToken = default);
 }

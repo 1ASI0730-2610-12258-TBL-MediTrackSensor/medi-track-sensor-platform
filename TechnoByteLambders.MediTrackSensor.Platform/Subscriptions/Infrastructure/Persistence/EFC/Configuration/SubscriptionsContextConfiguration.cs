@@ -10,6 +10,7 @@ public static class SubscriptionsContextConfiguration
     {
         builder.Entity<Subscription>(entity =>
         {
+            entity.ToTable("subscriptions");
             entity.HasKey(s => s.Id);
             entity.Property(s => s.Id).HasColumnName("id");
             entity.Property(s => s.Plan).HasColumnName("plan").IsRequired().HasConversion<string>();
@@ -22,10 +23,10 @@ public static class SubscriptionsContextConfiguration
                 .HasColumnName("end_date")
                 .HasConversion(v => v.ToDateTime(TimeOnly.MinValue), v => DateOnly.FromDateTime(v))
                 .IsRequired();
-
             entity.Property(s => s.AdminId)
                 .HasConversion(v => v.Value, v => new AdminId(v))
                 .HasColumnName("admin_id");
+            entity.Property(s => s.CreatedAt).HasColumnName("created_at");
         });
     }
 }
