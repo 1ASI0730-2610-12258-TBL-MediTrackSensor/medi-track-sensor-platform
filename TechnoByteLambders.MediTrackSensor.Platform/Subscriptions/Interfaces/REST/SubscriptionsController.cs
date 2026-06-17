@@ -1,0 +1,25 @@
+using Microsoft.AspNetCore.Mvc;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.Commands;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model.ValueObjects;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST.Resources;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST.Transform;
+
+namespace TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST;
+
+[ApiController]
+[Route("api/v1/[controller]")]
+public class SubscriptionsController(ISubscriptionCommandService commandService) : ControllerBase
+{
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateSubscriptionResource resource, CancellationToken ct)
+    {
+        if (!Enum.TryParse<SubscriptionPlan>(resource.Plan, true, out var plan))
+            return BadRequest(new { error = "Invalid Plan value." });
+
+        var result = await commandService.Handle(
+            new CreateSubscriptionCommand(plan, resource.StartDate, resource.EndDate, resource.AdminId), ct);
+        if (result.IsFailure) return BadRequest(new { error = ((dynamic)result).Error });
+        return Ok(SubscriptionResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
+    }
+}
