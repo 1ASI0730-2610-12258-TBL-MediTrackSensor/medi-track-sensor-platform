@@ -1,3 +1,4 @@
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.ValueObjects;
 
 namespace TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Aggregates;
@@ -16,6 +17,16 @@ public partial class Device(
         new SensorReading(0, 0, 0, 0, 0, 0, 0),
         DoorStatus.Closed,
         new EstablishmentId(0))
+    {
+    }
+
+    public Device(CreateDeviceCommand command) : this(
+        command.ExactLocation,
+        command.TypeOfMedication,
+        new SensorReading(0, 0, 0, 0, 0, 0, 0),
+        DoorStatus.Closed,
+        new EstablishmentId(command.EstablishmentId),
+        command.EnabledSensors)
     {
     }
 

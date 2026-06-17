@@ -12,6 +12,10 @@ public static class MonitoringErrors
         "Monitoring.DeviceUpdateFailed",
         "An error occurred while updating the device sensor data.");
 
+    public static readonly Error DeviceCreationFailed = new(
+        "Monitoring.DeviceCreationFailed",
+        "An error occurred while creating the device.");
+
     public static readonly Error InternalServerError = new(
         "Monitoring.InternalServerError",
         "An unexpected error occurred.");
