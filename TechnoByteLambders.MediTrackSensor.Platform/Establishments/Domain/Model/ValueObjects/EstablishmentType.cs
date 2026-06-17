@@ -7,4 +7,5 @@ public enum EstablishmentType
     Hospital,
     Pharmacy,
     Laboratory
+
 }

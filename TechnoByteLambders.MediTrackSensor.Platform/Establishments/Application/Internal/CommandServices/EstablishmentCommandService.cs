@@ -38,4 +38,15 @@ public class EstablishmentCommandService(
             return new Result<Establishment, EstablishmentsError>.Failure(EstablishmentsError.EstablishmentCreationFailed);
         }
     }
+
+    public async Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var establishment = await establishmentRepository.FindByIdAsync(id, cancellationToken);
+        if (establishment is null)
+            return new Result<bool, string>.Failure(EstablishmentsErrors.EstablishmentNotFound.Description);
+
+        establishmentRepository.Remove(establishment);
+        await unitOfWork.CompleteAsync(cancellationToken);
+        return new Result<bool, string>.Success(true);
+    }
 }

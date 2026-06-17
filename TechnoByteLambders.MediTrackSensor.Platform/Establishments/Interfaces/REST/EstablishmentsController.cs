@@ -58,4 +58,12 @@ public class EstablishmentsController(
                 EstablishmentsErrors.InternalServerError.Description)
         };
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var result = await establishmentCommandService.DeleteAsync(id, ct);
+        if (result.IsFailure) return NotFound(new { error = ((dynamic)result).Error });
+        return NoContent();
+    }
 }

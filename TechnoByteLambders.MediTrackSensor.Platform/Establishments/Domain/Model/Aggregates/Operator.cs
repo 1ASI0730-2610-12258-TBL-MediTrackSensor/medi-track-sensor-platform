@@ -14,9 +14,11 @@ public partial class Operator(int alertsAnswered, string schedule, int establish
     public int EstablishmentId { get; private set; } = establishmentId;
     public UserId UserId { get; private set; } = userId;
 
+
     public Operator UpdateSchedule(string schedule)
     {
         Schedule = schedule;
         return this;
     }
+
 }

@@ -10,4 +10,6 @@ public interface IEstablishmentCommandService
     Task<Result<Establishment, EstablishmentsError>> Handle(
         CreateEstablishmentCommand command,
         CancellationToken cancellationToken = default);
+    
+    Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }
