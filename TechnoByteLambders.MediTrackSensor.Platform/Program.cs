@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
@@ -67,14 +71,16 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 // Shared
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// TODO: cada integrante registra aquí los repositorios y servicios de su bounded context
+// Establishments
+builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
+builder.Services.AddScoped<IEstablishmentCommandService, EstablishmentCommandService>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.Migrate();
+    context.Database.EnsureCreated();
 }
 
 app.UseGlobalExceptionHandler();
