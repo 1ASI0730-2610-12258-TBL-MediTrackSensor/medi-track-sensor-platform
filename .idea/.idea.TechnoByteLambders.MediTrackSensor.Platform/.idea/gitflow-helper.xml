@@ -5,7 +5,7 @@
     <option name="developBranch" value="develop" />
     <option name="featurePrefix" value="feature/" />
     <option name="hotfixPrefix" value="hotfix/" />
-    <option name="mainBranch" value="main" />
+    <option name="mainBranch" value="master" />
     <option name="releasePrefix" value="release/" />
     <option name="showDetails" value="true" />
   </component>
