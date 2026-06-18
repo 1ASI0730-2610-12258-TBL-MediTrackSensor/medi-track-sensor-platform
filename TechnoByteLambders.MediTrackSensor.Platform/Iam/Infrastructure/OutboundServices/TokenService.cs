@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -35,5 +35,31 @@ public class TokenService(IConfiguration configuration) : ITokenService
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public int? ValidateToken(string token)
+    {
+        try
+        {
+            var secret = configuration["Jwt:Secret"]!;
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(secret);
+
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            }, out var validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            return int.Parse(jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
