@@ -71,11 +71,26 @@ builder.Services.AddSingleton<ProblemDetailsFactory>();
 // Database
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
-    var connectionStringTemplate = builder.Configuration.GetConnectionString("DefaultConnection");
-    if (string.IsNullOrWhiteSpace(connectionStringTemplate))
-        throw new InvalidOperationException("Database connection string is not set in the configuration.");
+    string connectionString;
 
-    var connectionString = Environment.ExpandEnvironmentVariables(connectionStringTemplate);
+    var host = Environment.GetEnvironmentVariable("DATABASE_HOST");
+    var port = Environment.GetEnvironmentVariable("DATABASE_PORT");
+    var database = Environment.GetEnvironmentVariable("DATABASE_NAME");
+    var user = Environment.GetEnvironmentVariable("DATABASE_USER");
+    var password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
+
+    if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(port) && !string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
+    {
+        connectionString = $"server={host};port={port};database={database};user={user};password={password}";
+    }
+    else
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        connectionString = Environment.ExpandEnvironmentVariables(connectionString);
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+        throw new InvalidOperationException("Database connection string is not set in the configuration.");
 
     options.UseMySQL(connectionString)
         .UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>())
