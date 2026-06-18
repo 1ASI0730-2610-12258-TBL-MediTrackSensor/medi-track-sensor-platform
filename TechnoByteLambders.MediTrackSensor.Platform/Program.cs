@@ -42,7 +42,8 @@ builder.Services.AddControllers(options => options.Conventions.Add(new KebabCase
 
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// TODO: Swagger removed temporarily for .NET 10.0 compatibility
+// builder.Services.AddSwaggerGen();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -125,8 +126,9 @@ var localizationOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 app.UseRequestLocalization(localizationOptions);
 
-app.UseSwagger();
-app.UseSwaggerUI();
+// Swagger disabled for .NET 10.0 compatibility
+// app.UseSwagger();
+// app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
 app.UseAuthorization();
