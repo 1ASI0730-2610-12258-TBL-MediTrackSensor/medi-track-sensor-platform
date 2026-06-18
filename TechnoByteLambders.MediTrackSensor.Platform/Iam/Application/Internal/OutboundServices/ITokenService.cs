@@ -5,4 +5,5 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.O
 public interface ITokenService
 {
     string GenerateToken(User user);
+    int? ValidateToken(string token);
 }

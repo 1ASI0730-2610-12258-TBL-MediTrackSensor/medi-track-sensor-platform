@@ -12,12 +12,11 @@ using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared
 namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/users")] // Mantenemos la ruta explícita de develop
+[Route("api/v1/users")]
 public class UsersController(
     IUserCommandService userCommandService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
-    // --- ENDPOINT: SIGN-UP 
     [HttpPost]
     public async Task<IActionResult> SignUp([FromBody] SignUpResource resource, CancellationToken ct)
     {
@@ -36,7 +35,6 @@ public class UsersController(
         );
     }
 
-    // --- ENDPOINT: SIGN-IN 
     [HttpPost("sign-in")]
     public async Task<IActionResult> SignIn(
         [FromBody] SignInResource resource,
@@ -72,5 +70,14 @@ public class UsersController(
                 IamError.InternalServerError,
                 IamErrors.InternalServerError.Description)
         };
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var result = await userCommandService.DeleteAsync(id, ct);
+        if (result is Result<bool, string>.Failure f)
+            return NotFound(new { error = f.Error });
+        return NoContent();
     }
 }
