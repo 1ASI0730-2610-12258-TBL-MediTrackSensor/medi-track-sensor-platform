@@ -73,7 +73,7 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 // Shared
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// TODO: cada integrante registra aquí los repositorios y servicios de su bounded context
+
 builder.Services.AddScoped<IUserRepository, UserRepository>(); 
 
 // IAM — Infrastructure
