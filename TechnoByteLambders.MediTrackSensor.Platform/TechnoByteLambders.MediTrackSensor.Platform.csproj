@@ -44,8 +44,4 @@
         </EmbeddedResource>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Iam\Domain\Model\Aggregates\" />
-    </ItemGroup>
-
 </Project>
