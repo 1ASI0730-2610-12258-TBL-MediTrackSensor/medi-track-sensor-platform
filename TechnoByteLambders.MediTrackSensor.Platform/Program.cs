@@ -1,5 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.OutboundServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
@@ -68,6 +74,17 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // TODO: cada integrante registra aquí los repositorios y servicios de su bounded context
+builder.Services.AddScoped<IUserRepository, UserRepository>(); 
+
+// IAM — Infrastructure
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// IAM — Application
+builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+
+// IAM — Outbound
+builder.Services.AddScoped<IHashingService, HashingService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
@@ -77,7 +94,7 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
 }
 
-app.UseGlobalExceptionHandler();
+//app.UseGlobalExceptionHandler();
 
 var supportedCultures = new[] { "en", "es" };
 var localizationOptions = new RequestLocalizationOptions()
