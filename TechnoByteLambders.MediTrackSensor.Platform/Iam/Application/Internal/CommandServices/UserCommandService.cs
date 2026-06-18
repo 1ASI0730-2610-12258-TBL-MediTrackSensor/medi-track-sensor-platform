@@ -16,7 +16,6 @@ public class UserCommandService(
     IHashingService hashingService,
     ITokenService tokenService) : IUserCommandService
 {
-    
     public async Task<Result<User, string>> Handle(SignUpCommand command, CancellationToken cancellationToken = default)
     {
         var email = command.Email.ToLowerInvariant().Trim();
@@ -36,8 +35,6 @@ public class UserCommandService(
         catch (Exception) { return new Result<User, string>.Failure(IamErrors.UserCreationFailed.Description); }
     }
 
-    
-    
     public async Task<Result<(User User, string Token), IamError>> Handle(
         SignInCommand command,
         CancellationToken cancellationToken = default)
@@ -57,5 +54,16 @@ public class UserCommandService(
         {
             return new Result<(User, string), IamError>.Failure(IamError.InternalServerError);
         }
+    }
+
+    public async Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var user = await userRepository.FindByIdAsync(id, cancellationToken);
+        if (user is null)
+            return new Result<bool, string>.Failure(IamErrors.UserNotFound.Description);
+
+        userRepository.Remove(user);
+        await unitOfWork.CompleteAsync(cancellationToken);
+        return new Result<bool, string>.Success(true);
     }
 }

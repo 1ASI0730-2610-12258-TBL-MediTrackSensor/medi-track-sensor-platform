@@ -12,4 +12,6 @@ public interface IUserCommandService
     Task<Result<(User User, string Token), IamError>> Handle(
         SignInCommand command,
         CancellationToken cancellationToken = default);
+    
+    Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

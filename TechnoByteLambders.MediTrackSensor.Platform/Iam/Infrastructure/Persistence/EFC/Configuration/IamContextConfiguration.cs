@@ -23,6 +23,7 @@ public static class IamContextConfiguration
             entity.Property(u => u.PasswordHash).HasColumnName("password_hash").IsRequired().HasMaxLength(255);
             entity.Property(u => u.Photo).HasColumnName("photo").HasMaxLength(255);
 
+            // Single-property VOs → HasConversion (avoids shadow key conflict)
             entity.Property(u => u.Dni)
                 .HasConversion(v => v.Value, v => new Dni(v))
                 .HasColumnName("dni")
