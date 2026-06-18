@@ -44,4 +44,8 @@
         </EmbeddedResource>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Monitoring\Domain\Model\Commands\" />
+    </ItemGroup>
+
 </Project>
