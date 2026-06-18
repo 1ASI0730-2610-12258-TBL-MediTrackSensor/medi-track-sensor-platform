@@ -53,7 +53,7 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 "http://localhost:4173",
-                "https://meditrack-sensor.vercel.app"
+                "https://medi-track-sensor-frontend.vercel.app"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
