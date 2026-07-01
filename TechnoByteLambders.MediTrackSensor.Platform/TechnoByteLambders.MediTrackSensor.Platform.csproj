@@ -47,6 +47,7 @@
 
     <ItemGroup>
       <Folder Include="Iam\" />
+      <Folder Include="Logistics\Domain\Model\" />
     </ItemGroup>
 
 </Project>
