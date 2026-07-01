@@ -8,7 +8,7 @@ using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pipeline
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Resources.Errors;
 using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared.Interfaces.REST.ProblemDetails.ProblemDetailsFactory;
-
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.CommandHandlers;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -19,6 +19,7 @@ builder.Services.AddControllers(options => options.Conventions.Add(new KebabCase
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     })
     .AddDataAnnotationsLocalization();
+builder.Services.AddScoped<EditTransportSensorDataCommandHandler>();
 builder.Services.AddScoped<GetAllTransportsQueryHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
