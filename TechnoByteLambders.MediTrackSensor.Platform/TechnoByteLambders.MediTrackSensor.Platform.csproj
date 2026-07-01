@@ -49,6 +49,7 @@
       <Folder Include="Iam\" />
       <Folder Include="Logistics\Application\Internal\" />
       <Folder Include="Logistics\Domain\Model\" />
+      <Folder Include="Logistics\Infrastructure\Persistence\EFC\" />
     </ItemGroup>
 
 </Project>
