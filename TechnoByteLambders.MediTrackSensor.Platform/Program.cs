@@ -19,7 +19,7 @@ builder.Services.AddControllers(options => options.Conventions.Add(new KebabCase
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     })
     .AddDataAnnotationsLocalization();
-
+builder.Services.AddScoped<GetAllTransportsQueryHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
