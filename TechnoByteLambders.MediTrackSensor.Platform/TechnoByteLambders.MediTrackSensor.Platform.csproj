@@ -44,4 +44,8 @@
         </EmbeddedResource>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Monitoring\Infrastructure\Persistence\EFC\Repositories\" />
+    </ItemGroup>
+
 </Project>
