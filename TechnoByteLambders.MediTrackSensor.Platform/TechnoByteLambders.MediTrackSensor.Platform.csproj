@@ -50,6 +50,7 @@
       <Folder Include="Logistics\Application\Internal\" />
       <Folder Include="Logistics\Domain\Model\" />
       <Folder Include="Logistics\Infrastructure\Persistence\EFC\" />
+      <Folder Include="Logistics\Interfaces\REST\" />
     </ItemGroup>
 
 </Project>
