@@ -7,7 +7,11 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandSer
 
 public interface IUserCommandService
 {
+    Task<Result<User, string>> Handle(SignUpCommand command, CancellationToken cancellationToken = default);
+    
     Task<Result<(User User, string Token), IamError>> Handle(
         SignInCommand command,
         CancellationToken cancellationToken = default);
+    
+    Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

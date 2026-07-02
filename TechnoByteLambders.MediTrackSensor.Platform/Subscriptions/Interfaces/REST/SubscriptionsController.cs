@@ -22,4 +22,12 @@ public class SubscriptionsController(ISubscriptionCommandService commandService)
         if (result.IsFailure) return BadRequest(new { error = ((dynamic)result).Error });
         return Ok(SubscriptionResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var result = await commandService.DeleteAsync(id, ct);
+        if (result.IsFailure) return NotFound(new { error = ((dynamic)result).Error });
+        return NoContent();
+    }
 }

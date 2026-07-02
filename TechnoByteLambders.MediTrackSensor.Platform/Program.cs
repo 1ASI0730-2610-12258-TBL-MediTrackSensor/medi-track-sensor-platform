@@ -1,25 +1,30 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+// IAM
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.OutboundServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
+// Establishments
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Infrastructure.Persistence.EFC.Repositories;
+// Monitoring
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Infrastructure.Persistence.EFC.Repositories;
+// Subscriptions
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Infrastructure.Persistence.EFC.Repositories;
+// Shared
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
@@ -125,10 +130,11 @@ builder.Services.AddScoped<ISubscriptionCommandService, SubscriptionCommandServi
 
 var app = builder.Build();
 
+// Database Migration/Creation
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate(); 
 }
 
 app.UseGlobalExceptionHandler();

@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Aggregates;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Errors;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST.Resources;
@@ -15,6 +17,24 @@ public class UsersController(
     IUserCommandService userCommandService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpPost]
+    public async Task<IActionResult> SignUp([FromBody] SignUpResource resource, CancellationToken ct)
+    {
+        var command = SignUpCommandFromResourceAssembler.ToCommandFromResource(resource);
+        
+        var result = await userCommandService.Handle(command, ct);
+
+        if (result is Result<User, string>.Failure f)
+            return BadRequest(new { error = f.Error });
+            
+        var success = (Result<User, string>.Success)result;
+        
+        return Created(
+            $"/api/v1/users/{success.Value.Id}",
+            UserResourceFromEntityAssembler.ToResourceFromEntity(success.Value)
+        );
+    }
+
     [HttpPost("sign-in")]
     public async Task<IActionResult> SignIn(
         [FromBody] SignInResource resource,
@@ -26,11 +46,11 @@ public class UsersController(
 
         return result switch
         {
-            Result<(Domain.Model.Aggregates.User User, string Token), IamError>.Success success =>
+            Result<(User User, string Token), IamError>.Success success =>
                 Ok(new AuthResource(
                     UserResourceFromEntityAssembler.ToResourceFromEntity(success.Value.User),
                     success.Value.Token)),
-            Result<(Domain.Model.Aggregates.User User, string Token), IamError>.Failure failure =>
+            Result<(User User, string Token), IamError>.Failure failure =>
                 failure.Error switch
                 {
                     IamError.InvalidCredentials => problemDetailsFactory.CreateProblemDetails(
@@ -50,5 +70,14 @@ public class UsersController(
                 IamError.InternalServerError,
                 IamErrors.InternalServerError.Description)
         };
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var result = await userCommandService.DeleteAsync(id, ct);
+        if (result is Result<bool, string>.Failure f)
+            return NotFound(new { error = f.Error });
+        return NoContent();
     }
 }

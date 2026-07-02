@@ -1,3 +1,4 @@
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.ValueObjects;
 
 namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Aggregates;
@@ -26,6 +27,19 @@ public partial class User(
     {
     }
 
+    public User(SignUpCommand command, string passwordHash) : this(
+        command.Name,
+        new Dni(command.Dni),
+        new Email(command.Email),
+        command.Phone,
+        command.JobTitle,
+        command.EntryDate,
+        command.Role,
+        passwordHash,
+        command.Photo)
+    {
+    }
+
     public int Id { get; }
     public string Name { get; private set; } = name;
     public Dni Dni { get; private set; } = dni;
@@ -36,4 +50,19 @@ public partial class User(
     public UserRole Role { get; private set; } = role;
     public string PasswordHash { get; private set; } = passwordHash;
     public string Photo { get; private set; } = photo;
+
+    public User UpdateProfile(string name, string phone, string jobTitle, string photo)
+    {
+        Name = name;
+        Phone = phone;
+        JobTitle = jobTitle;
+        Photo = photo;
+        return this;
+    }
+
+    public User UpdatePasswordHash(string passwordHash)
+    {
+        PasswordHash = passwordHash;
+        return this;
+    }
 }
