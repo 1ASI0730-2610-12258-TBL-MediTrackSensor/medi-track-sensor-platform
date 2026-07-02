@@ -26,4 +26,15 @@ public class SubscriptionCommandService(
         catch (DbUpdateException) { return new Result<Subscription, string>.Failure(SubscriptionsErrors.SubscriptionCreationFailed.Description); }
         catch (Exception) { return new Result<Subscription, string>.Failure(SubscriptionsErrors.SubscriptionCreationFailed.Description); }
     }
+
+    public async Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var subscription = await subscriptionRepository.FindByIdAsync(id, cancellationToken);
+        if (subscription is null)
+            return new Result<bool, string>.Failure(SubscriptionsErrors.SubscriptionNotFound.Description);
+
+        subscriptionRepository.Remove(subscription);
+        await unitOfWork.CompleteAsync(cancellationToken);
+        return new Result<bool, string>.Success(true);
+    }
 }
