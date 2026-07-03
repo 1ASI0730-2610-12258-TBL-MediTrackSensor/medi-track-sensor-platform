@@ -52,7 +52,7 @@ builder.Services.AddScoped<EditTransportSensorDataCommandHandler>();
 builder.Services.AddScoped<GetAllTransportsQueryHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -63,7 +63,7 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 "http://localhost:4173",
-                "https://meditrack-sensor.vercel.app"
+                "https://medi-track-sensor-frontend.vercel.app"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -80,11 +80,26 @@ builder.Services.AddSingleton<ProblemDetailsFactory>();
 // Database
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
-    var connectionStringTemplate = builder.Configuration.GetConnectionString("DefaultConnection");
-    if (string.IsNullOrWhiteSpace(connectionStringTemplate))
-        throw new InvalidOperationException("Database connection string is not set in the configuration.");
+    string connectionString;
 
-    var connectionString = Environment.ExpandEnvironmentVariables(connectionStringTemplate);
+    var host = Environment.GetEnvironmentVariable("DATABASE_HOST");
+    var port = Environment.GetEnvironmentVariable("DATABASE_PORT");
+    var database = Environment.GetEnvironmentVariable("DATABASE_NAME");
+    var user = Environment.GetEnvironmentVariable("DATABASE_USER");
+    var password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
+
+    if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(port) && !string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
+    {
+        connectionString = $"server={host};port={port};database={database};user={user};password={password}";
+    }
+    else
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        connectionString = Environment.ExpandEnvironmentVariables(connectionString);
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+        throw new InvalidOperationException("Database connection string is not set in the configuration.");
 
     options.UseMySQL(connectionString)
         .UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>())
@@ -136,8 +151,11 @@ var localizationOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 app.UseRequestLocalization(localizationOptions);
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.MapOpenApi();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/openapi/v1.json", "MediTrack Sensor API v1");
+});
 app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
 app.UseAuthorization();
