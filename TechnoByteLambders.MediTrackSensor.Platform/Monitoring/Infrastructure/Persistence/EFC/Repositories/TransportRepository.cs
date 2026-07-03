@@ -18,6 +18,11 @@ public class TransportRepository : ITransportRepository
         _context = context;
     }
 
+    public async Task AddAsync(Transport transport)
+    {
+        await _context.Set<Transport>().AddAsync(transport);
+    }
+
     public async Task<Transport?> FindByIdAsync(Guid id)
     {
         return await _context.Set<Transport>().FindAsync(id);

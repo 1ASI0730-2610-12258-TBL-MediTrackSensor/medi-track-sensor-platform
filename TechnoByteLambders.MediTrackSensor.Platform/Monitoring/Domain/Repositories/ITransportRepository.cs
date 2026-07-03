@@ -4,7 +4,8 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Reposito
 
 public interface ITransportRepository
 {
+    Task AddAsync(Transport transport);
     Task<Transport?> FindByIdAsync(Guid id);
     void Update(Transport transport);
-    Task<IEnumerable<Transport>> ListAsync(); 
+    Task<IEnumerable<Transport>> ListAsync();
 }
