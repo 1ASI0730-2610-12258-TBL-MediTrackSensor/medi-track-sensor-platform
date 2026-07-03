@@ -33,4 +33,24 @@ public class OperatorCommandService(
             return new Result<Operator, EstablishmentsError>.Failure(EstablishmentsError.OperatorUpdateFailed);
         }
     }
+
+    public async Task<Result<bool, EstablishmentsError>> Handle(
+        DeleteOperatorCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var op = await operatorRepository.FindByIdAsync(command.Id, cancellationToken);
+        if (op is null)
+            return new Result<bool, EstablishmentsError>.Failure(EstablishmentsError.OperatorNotFound);
+
+        try
+        {
+            operatorRepository.Remove(op);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return new Result<bool, EstablishmentsError>.Success(true);
+        }
+        catch (Exception)
+        {
+            return new Result<bool, EstablishmentsError>.Failure(EstablishmentsError.OperatorDeleteFailed);
+        }
+    }
 }

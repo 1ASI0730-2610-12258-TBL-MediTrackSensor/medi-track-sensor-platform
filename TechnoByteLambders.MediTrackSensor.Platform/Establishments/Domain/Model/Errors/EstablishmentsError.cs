@@ -5,5 +5,6 @@ public enum EstablishmentsError
     EstablishmentCreationFailed,
     OperatorNotFound,
     OperatorUpdateFailed,
+    OperatorDeleteFailed,
     InternalServerError
 }
