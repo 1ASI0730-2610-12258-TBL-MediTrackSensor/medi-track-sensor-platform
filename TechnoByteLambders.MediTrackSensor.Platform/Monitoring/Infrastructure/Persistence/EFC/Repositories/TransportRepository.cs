@@ -33,6 +33,11 @@ public class TransportRepository : ITransportRepository
         _context.Set<Transport>().Update(transport);
     }
 
+    public void Remove(Transport transport)
+    {
+        _context.Set<Transport>().Remove(transport);
+    }
+
     public async Task<IEnumerable<Transport>> ListAsync()
     {
         return await _context.Set<Transport>().ToListAsync();

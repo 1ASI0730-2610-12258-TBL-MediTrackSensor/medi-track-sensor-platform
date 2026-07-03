@@ -51,6 +51,7 @@ builder.Services.AddScoped<ITransportRepository, TransportRepository>();
 builder.Services.AddScoped<EditTransportSensorDataCommandHandler>();
 builder.Services.AddScoped<GetAllTransportsQueryHandler>();
 builder.Services.AddScoped<CreateTransportCommandHandler>();
+builder.Services.AddScoped<DeleteTransportCommandHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
