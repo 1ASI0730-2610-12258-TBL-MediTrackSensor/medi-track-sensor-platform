@@ -8,6 +8,16 @@ public static class MonitoringContextConfiguration
 {
     public static void ApplyMonitoringConfiguration(this ModelBuilder builder)
     {
+        builder.Entity<Transport>(entity =>
+        {
+            entity.ToTable("transports");
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Id).HasColumnName("id");
+            entity.Property(t => t.CurrentTemperature).HasColumnName("current_temperature").HasPrecision(4, 1);
+            entity.Property(t => t.CurrentHumidity).HasColumnName("current_humidity").HasPrecision(4, 1);
+            entity.Property(t => t.LastSensorUpdate).HasColumnName("last_sensor_update");
+        });
+
         builder.Entity<Device>(entity =>
         {
             entity.HasKey(d => d.Id);
