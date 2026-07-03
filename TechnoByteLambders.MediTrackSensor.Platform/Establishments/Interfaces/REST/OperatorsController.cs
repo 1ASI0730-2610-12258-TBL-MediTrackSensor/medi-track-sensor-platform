@@ -25,6 +25,46 @@ public class OperatorsController(
         return Ok(items.Select(OperatorResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateOperatorResource resource,
+        CancellationToken cancellationToken)
+    {
+        var result = await operatorCommandService.Handle(
+            new CreateOperatorCommand(resource.Schedule, resource.EstablishmentId, resource.UsersId),
+            cancellationToken);
+
+        return result switch
+        {
+            Result<Domain.Model.Aggregates.Operator, EstablishmentsError>.Success success =>
+                Ok(OperatorResourceFromEntityAssembler.ToResourceFromEntity(success.Value)),
+            Result<Domain.Model.Aggregates.Operator, EstablishmentsError>.Failure failure =>
+                failure.Error switch
+                {
+                    EstablishmentsError.EstablishmentNotFound => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status404NotFound,
+                        EstablishmentsError.EstablishmentNotFound,
+                        EstablishmentsErrors.EstablishmentNotFound.Description),
+                    EstablishmentsError.OperatorCreationFailed => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status400BadRequest,
+                        EstablishmentsError.OperatorCreationFailed,
+                        EstablishmentsErrors.OperatorCreationFailed.Description),
+                    _ => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status500InternalServerError,
+                        EstablishmentsError.InternalServerError,
+                        EstablishmentsErrors.InternalServerError.Description)
+                },
+            _ => problemDetailsFactory.CreateProblemDetails(
+                this,
+                StatusCodes.Status500InternalServerError,
+                EstablishmentsError.InternalServerError,
+                EstablishmentsErrors.InternalServerError.Description)
+        };
+    }
+
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(
         int id,

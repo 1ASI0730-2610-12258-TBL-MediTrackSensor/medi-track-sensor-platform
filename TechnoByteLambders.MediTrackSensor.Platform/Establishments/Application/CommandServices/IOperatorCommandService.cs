@@ -8,6 +8,10 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application
 public interface IOperatorCommandService
 {
     Task<Result<Operator, EstablishmentsError>> Handle(
+        CreateOperatorCommand command,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<Operator, EstablishmentsError>> Handle(
         UpdateOperatorCommand command,
         CancellationToken cancellationToken = default);
 
