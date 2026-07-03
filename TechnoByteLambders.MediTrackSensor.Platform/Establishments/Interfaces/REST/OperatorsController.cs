@@ -65,4 +65,39 @@ public class OperatorsController(
                 EstablishmentsErrors.InternalServerError.Description)
         };
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        var result = await operatorCommandService.Handle(new DeleteOperatorCommand(id), cancellationToken);
+
+        return result switch
+        {
+            Result<bool, EstablishmentsError>.Success => NoContent(),
+            Result<bool, EstablishmentsError>.Failure failure =>
+                failure.Error switch
+                {
+                    EstablishmentsError.OperatorNotFound => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status404NotFound,
+                        EstablishmentsError.OperatorNotFound,
+                        EstablishmentsErrors.OperatorNotFound.Description),
+                    EstablishmentsError.OperatorDeleteFailed => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status400BadRequest,
+                        EstablishmentsError.OperatorDeleteFailed,
+                        EstablishmentsErrors.OperatorDeleteFailed.Description),
+                    _ => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status500InternalServerError,
+                        EstablishmentsError.InternalServerError,
+                        EstablishmentsErrors.InternalServerError.Description)
+                },
+            _ => problemDetailsFactory.CreateProblemDetails(
+                this,
+                StatusCodes.Status500InternalServerError,
+                EstablishmentsError.InternalServerError,
+                EstablishmentsErrors.InternalServerError.Description)
+        };
+    }
 }
