@@ -16,15 +16,18 @@ public class TransportSensorDataController : ControllerBase
     private readonly EditTransportSensorDataCommandHandler _commandHandler;
     private readonly GetAllTransportsQueryHandler _queryHandler;
     private readonly CreateTransportCommandHandler _createHandler;
+    private readonly DeleteTransportCommandHandler _deleteHandler;
 
     public TransportSensorDataController(
         EditTransportSensorDataCommandHandler commandHandler,
         GetAllTransportsQueryHandler queryHandler,
-        CreateTransportCommandHandler createHandler)
+        CreateTransportCommandHandler createHandler,
+        DeleteTransportCommandHandler deleteHandler)
     {
         _commandHandler = commandHandler;
         _queryHandler = queryHandler;
         _createHandler = createHandler;
+        _deleteHandler = deleteHandler;
     }
 
     // Endpoint 3: POST /api/v1/transports
@@ -57,6 +60,25 @@ public class TransportSensorDataController : ControllerBase
             var command = new EditTransportSensorDataCommand(transportId, resource.Temperature, resource.Humidity);
             await _commandHandler.HandleAsync(command);
             return Ok(new { message = "Datos del sensor del transporte actualizados con éxito." });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // Endpoint 4: DELETE /api/v1/transports/{transportId}
+    [HttpDelete("{transportId:guid}")]
+    public async Task<IActionResult> DeleteTransport(Guid transportId)
+    {
+        try
+        {
+            await _deleteHandler.HandleAsync(new DeleteTransportCommand(transportId));
+            return NoContent();
         }
         catch (KeyNotFoundException ex)
         {
