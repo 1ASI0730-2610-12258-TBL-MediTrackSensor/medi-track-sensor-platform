@@ -7,5 +7,6 @@ public interface ITransportRepository
     Task AddAsync(Transport transport);
     Task<Transport?> FindByIdAsync(Guid id);
     void Update(Transport transport);
+    void Remove(Transport transport);
     Task<IEnumerable<Transport>> ListAsync();
 }
