@@ -50,6 +50,7 @@ builder.Services.AddControllers(options => options.Conventions.Add(new KebabCase
 builder.Services.AddScoped<ITransportRepository, TransportRepository>();
 builder.Services.AddScoped<EditTransportSensorDataCommandHandler>();
 builder.Services.AddScoped<GetAllTransportsQueryHandler>();
+builder.Services.AddScoped<CreateTransportCommandHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();

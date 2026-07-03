@@ -14,14 +14,38 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Interfaces.REST
 public class TransportSensorDataController : ControllerBase
 {
     private readonly EditTransportSensorDataCommandHandler _commandHandler;
-    private readonly GetAllTransportsQueryHandler _queryHandler; 
+    private readonly GetAllTransportsQueryHandler _queryHandler;
+    private readonly CreateTransportCommandHandler _createHandler;
 
     public TransportSensorDataController(
         EditTransportSensorDataCommandHandler commandHandler,
-        GetAllTransportsQueryHandler queryHandler) 
+        GetAllTransportsQueryHandler queryHandler,
+        CreateTransportCommandHandler createHandler)
     {
         _commandHandler = commandHandler;
         _queryHandler = queryHandler;
+        _createHandler = createHandler;
+    }
+
+    // Endpoint 3: POST /api/v1/transports
+    [HttpPost]
+    public async Task<IActionResult> CreateTransport([FromBody] CreateTransportResource resource)
+    {
+        try
+        {
+            var command = new CreateTransportCommand(resource.CurrentTemperature, resource.CurrentHumidity);
+            var transport = await _createHandler.HandleAsync(command);
+            var result = new TransportResource(
+                transport.Id,
+                transport.CurrentTemperature,
+                transport.CurrentHumidity,
+                transport.LastSensorUpdate);
+            return CreatedAtAction(nameof(GetAllTransports), new { id = transport.Id }, result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     // Endpoint 1: PUT /api/v1/transports/{transportId}/sensor-data
