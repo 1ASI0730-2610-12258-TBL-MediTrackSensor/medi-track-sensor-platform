@@ -12,4 +12,6 @@ public interface IDeviceCommandService
     Task<Result<Device, MonitoringError>> Handle(
         UpdateDeviceSensorDataCommand command,
         CancellationToken cancellationToken = default);
+
+    Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }
