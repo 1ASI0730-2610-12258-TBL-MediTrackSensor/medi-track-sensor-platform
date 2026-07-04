@@ -6,6 +6,7 @@ using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Aggregates;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Errors;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Queries;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.ValueObjects;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST.Transform;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
@@ -18,6 +19,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST;
 public class UsersController(
     IUserCommandService userCommandService,
     IUserQueryService userQueryService,
+    IAdminCommandService adminCommandService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpGet]
@@ -38,7 +40,21 @@ public class UsersController(
             return BadRequest(new { error = f.Error });
             
         var success = (Result<User, string>.Success)result;
-        
+
+        if (resource.Role == UserRole.Admin && !string.IsNullOrWhiteSpace(resource.EntityName))
+        {
+            var adminResult = await adminCommandService.Handle(
+                new CreateAdminCommand(
+                    resource.EntityName.Trim(),
+                    $"ENT-{success.Value.Id}",
+                    string.Empty,
+                    success.Value.Id),
+                ct);
+
+            if (adminResult.IsFailure)
+                return BadRequest(new { error = ((dynamic)adminResult).Error });
+        }
+
         return Created(
             $"/api/v1/users/{success.Value.Id}",
             UserResourceFromEntityAssembler.ToResourceFromEntity(success.Value)

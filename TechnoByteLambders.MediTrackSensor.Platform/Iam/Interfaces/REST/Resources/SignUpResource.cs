@@ -11,4 +11,5 @@ public record SignUpResource(
     DateOnly EntryDate,
     UserRole Role,
     string Password,
-    string Photo);
+    string Photo,
+    string? EntityName = null);

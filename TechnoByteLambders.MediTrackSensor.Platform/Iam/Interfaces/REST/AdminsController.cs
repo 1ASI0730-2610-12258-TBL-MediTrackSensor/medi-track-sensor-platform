@@ -9,7 +9,7 @@ using TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST.Transform;
 namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/admins")]
 public class AdminsController(IAdminCommandService adminCommandService, IAdminQueryService adminQueryService) : ControllerBase
 {
     [HttpGet]
