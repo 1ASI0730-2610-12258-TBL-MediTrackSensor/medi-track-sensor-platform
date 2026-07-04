@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
@@ -67,7 +71,9 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 // Shared
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// TODO: cada integrante registra aquí los repositorios y servicios de su bounded context
+// IAM
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAdminQueryService, AdminQueryService>();
 
 var app = builder.Build();
 
