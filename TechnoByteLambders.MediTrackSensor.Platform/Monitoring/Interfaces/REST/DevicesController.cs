@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Errors;
+using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Queries;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.ValueObjects;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Interfaces.REST.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Interfaces.REST.Transform;
@@ -14,8 +16,16 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Interfaces.REST
 [Route("api/v1/devices")]
 public class DevicesController(
     IDeviceCommandService deviceCommandService,
+    IDeviceQueryService queryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var items = await queryService.Handle(new GetAllDevicesQuery(), ct);
+        return Ok(items.Select(DeviceResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDeviceResource resource, CancellationToken cancellationToken)
     {
