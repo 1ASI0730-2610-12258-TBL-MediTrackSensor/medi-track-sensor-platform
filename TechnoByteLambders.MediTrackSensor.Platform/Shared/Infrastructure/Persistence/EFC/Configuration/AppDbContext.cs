@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Infrastructure.Persistence.EFC.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Interceptors;
 
@@ -16,8 +17,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     {
         base.OnModelCreating(builder);
 
-        // TODO: cada integrante agrega aquí su configuración de bounded context:
-        // builder.ApplyXxxConfiguration();
+        builder.ApplySubscriptionsConfiguration();
 
         builder.UseSnakeCaseNamingConvention();
     }
