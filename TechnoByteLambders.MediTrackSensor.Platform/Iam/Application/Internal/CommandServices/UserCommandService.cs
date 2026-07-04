@@ -7,11 +7,14 @@ using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Errors;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
 
 namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.CommandServices;
 
 public class UserCommandService(
     IUserRepository userRepository,
+    IAdminRepository adminRepository,
+    AppDbContext context,
     IUnitOfWork unitOfWork,
     IHashingService hashingService,
     ITokenService tokenService) : IUserCommandService
@@ -33,6 +36,51 @@ public class UserCommandService(
         catch (OperationCanceledException) { return new Result<User, string>.Failure(IamErrors.UserCreationFailed.Description); }
         catch (DbUpdateException) { return new Result<User, string>.Failure(IamErrors.UserCreationFailed.Description); }
         catch (Exception) { return new Result<User, string>.Failure(IamErrors.UserCreationFailed.Description); }
+    }
+
+    public async Task<Result<User, string>> RegisterHealthEntityAsync(
+        SignUpCommand command,
+        string entityName,
+        CancellationToken cancellationToken = default)
+    {
+        var email = command.Email.ToLowerInvariant().Trim();
+        if (await userRepository.ExistsByEmailAsync(email, cancellationToken))
+            return new Result<User, string>.Failure(IamErrors.UserAlreadyExists.Description);
+
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var passwordHash = hashingService.HashPassword(command.Password);
+            var user = new User(command with { Email = email }, passwordHash);
+            await userRepository.AddAsync(user, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+
+            var admin = new Admin(new CreateAdminCommand(
+                entityName.Trim(),
+                $"ENT-{user.Id}",
+                string.Empty,
+                user.Id));
+            await adminRepository.AddAsync(admin, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+            return new Result<User, string>.Success(user);
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return new Result<User, string>.Failure(IamErrors.UserCreationFailed.Description);
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return new Result<User, string>.Failure(IamErrors.AdminCreationFailed.Description);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return new Result<User, string>.Failure(IamErrors.UserCreationFailed.Description);
+        }
     }
 
     public async Task<Result<(User User, string Token), IamError>> Handle(

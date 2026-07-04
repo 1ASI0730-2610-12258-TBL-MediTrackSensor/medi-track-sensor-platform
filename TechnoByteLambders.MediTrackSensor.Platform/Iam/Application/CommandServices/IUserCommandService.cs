@@ -8,6 +8,11 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandSer
 public interface IUserCommandService
 {
     Task<Result<User, string>> Handle(SignUpCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result<User, string>> RegisterHealthEntityAsync(
+        SignUpCommand command,
+        string entityName,
+        CancellationToken cancellationToken = default);
     
     Task<Result<(User User, string Token), IamError>> Handle(
         SignInCommand command,

@@ -19,7 +19,6 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST;
 public class UsersController(
     IUserCommandService userCommandService,
     IUserQueryService userQueryService,
-    IAdminCommandService adminCommandService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpGet]
@@ -33,27 +32,15 @@ public class UsersController(
     public async Task<IActionResult> SignUp([FromBody] SignUpResource resource, CancellationToken ct)
     {
         var command = SignUpCommandFromResourceAssembler.ToCommandFromResource(resource);
-        
-        var result = await userCommandService.Handle(command, ct);
+
+        var result = resource.Role == UserRole.Admin && !string.IsNullOrWhiteSpace(resource.EntityName)
+            ? await userCommandService.RegisterHealthEntityAsync(command, resource.EntityName.Trim(), ct)
+            : await userCommandService.Handle(command, ct);
 
         if (result is Result<User, string>.Failure f)
             return BadRequest(new { error = f.Error });
-            
+
         var success = (Result<User, string>.Success)result;
-
-        if (resource.Role == UserRole.Admin && !string.IsNullOrWhiteSpace(resource.EntityName))
-        {
-            var adminResult = await adminCommandService.Handle(
-                new CreateAdminCommand(
-                    resource.EntityName.Trim(),
-                    $"ENT-{success.Value.Id}",
-                    string.Empty,
-                    success.Value.Id),
-                ct);
-
-            if (adminResult.IsFailure)
-                return BadRequest(new { error = ((dynamic)adminResult).Error });
-        }
 
         return Created(
             $"/api/v1/users/{success.Value.Id}",
