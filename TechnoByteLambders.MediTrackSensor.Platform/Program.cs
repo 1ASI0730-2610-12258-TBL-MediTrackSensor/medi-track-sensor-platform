@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-
-// IAM
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.OutboundServices;
@@ -10,33 +14,18 @@ using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
-
-// Establishments
-using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.CommandServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.QueryServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.QueryServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Repositories;
-using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Infrastructure.Persistence.EFC.Repositories;
-
-// Monitoring
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Application.Internal.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Application.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.CommandHandlers;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.Internal.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Infrastructure.Persistence.EFC.Repositories;
-
-// Subscriptions
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.Internal.CommandServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.Internal.QueryServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.QueryServices;
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Repositories;
-using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Infrastructure.Persistence.EFC.Repositories;
-
-// Shared
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
@@ -44,6 +33,12 @@ using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persiste
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pipeline.Middleware.Extensions;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Resources.Errors;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.Internal.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.Internal.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Infrastructure.Persistence.EFC.Repositories;
 using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared.Interfaces.REST.ProblemDetails.ProblemDetailsFactory;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,16 +52,10 @@ builder.Services.AddControllers(options => options.Conventions.Add(new KebabCase
     })
     .AddDataAnnotationsLocalization();
 
-builder.Services.AddScoped<ITransportRepository, TransportRepository>();
-builder.Services.AddScoped<EditTransportSensorDataCommandHandler>();
-builder.Services.AddScoped<GetAllTransportsQueryHandler>();
-builder.Services.AddScoped<CreateTransportCommandHandler>();
-builder.Services.AddScoped<DeleteTransportCommandHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
@@ -83,13 +72,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddSingleton<IStringLocalizer<ErrorMessages>, StringLocalizer<ErrorMessages>>();
 builder.Services.AddSingleton<IStringLocalizer<CommonMessages>, StringLocalizer<CommonMessages>>();
 builder.Services.AddSingleton<ProblemDetailsFactory>();
 
-// Database
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
     string connectionString;
@@ -121,30 +108,35 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         options.EnableSensitiveDataLogging();
 });
 
-// Shared
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // IAM
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserCommandService, UserCommandService>();
-builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+builder.Services.AddScoped<IAdminCommandService, AdminCommandService>();
+builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 builder.Services.AddScoped<IAdminQueryService, AdminQueryService>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Establishments
+builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
+builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
+builder.Services.AddScoped<IEstablishmentCommandService, EstablishmentCommandService>();
+builder.Services.AddScoped<IOperatorCommandService, OperatorCommandService>();
+builder.Services.AddScoped<IEstablishmentQueryService, EstablishmentQueryService>();
+builder.Services.AddScoped<IOperatorQueryService, OperatorQueryService>();
 
 // Monitoring
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
 
-// Establishments
-builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
-builder.Services.AddScoped<IEstablishmentCommandService, EstablishmentCommandService>();
-builder.Services.AddScoped<IEstablishmentQueryService, EstablishmentQueryService>();
-builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
-builder.Services.AddScoped<IOperatorCommandService, OperatorCommandService>();
-builder.Services.AddScoped<IOperatorQueryService, OperatorQueryService>();
+// Logistics
+builder.Services.AddScoped<ITransportRepository, TransportRepository>();
+builder.Services.AddScoped<ITransportCommandService, TransportCommandService>();
+builder.Services.AddScoped<ITransportQueryService, TransportQueryService>();
 
 // Subscriptions
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
@@ -153,7 +145,6 @@ builder.Services.AddScoped<ISubscriptionQueryService, SubscriptionQueryService>(
 
 var app = builder.Build();
 
-// Database Migration/Creation
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();

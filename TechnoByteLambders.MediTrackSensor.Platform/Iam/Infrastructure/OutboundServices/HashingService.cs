@@ -1,4 +1,4 @@
-﻿using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.OutboundServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.OutboundServices;
 
 namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundServices;
 

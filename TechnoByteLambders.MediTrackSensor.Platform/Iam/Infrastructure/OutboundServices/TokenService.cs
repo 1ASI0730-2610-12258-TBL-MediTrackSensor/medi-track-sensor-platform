@@ -1,9 +1,6 @@
-﻿using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.OutboundServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Aggregates;
@@ -42,29 +39,23 @@ public class TokenService(IConfiguration configuration) : ITokenService
 
     public int? ValidateToken(string token)
     {
-        if (string.IsNullOrEmpty(token)) return null;
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var secret = configuration["Jwt:Secret"]!;
-        var key = Encoding.UTF8.GetBytes(secret);
-
         try
         {
+            var secret = configuration["Jwt:Secret"]!;
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(secret);
+
             tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = configuration["Jwt:Issuer"],
-                ValidateAudience = true,
-                ValidAudience = configuration["Jwt:Audience"],
-                ClockSkew = TimeSpan.Zero 
-            }, out SecurityToken validatedToken);
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            }, out var validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var userIdString = jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value;
-
-            return int.Parse(userIdString);
+            return int.Parse(jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value);
         }
         catch
         {
