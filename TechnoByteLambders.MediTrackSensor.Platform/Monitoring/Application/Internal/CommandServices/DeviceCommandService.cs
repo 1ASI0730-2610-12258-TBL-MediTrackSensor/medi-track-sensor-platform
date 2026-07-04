@@ -48,4 +48,15 @@ public class DeviceCommandService(
             return new Result<Device, MonitoringError>.Failure(MonitoringError.DeviceUpdateFailed);
         }
     }
+
+    public async Task<Result<bool, string>> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var device = await deviceRepository.FindByIdAsync(id, cancellationToken);
+        if (device is null)
+            return new Result<bool, string>.Failure(MonitoringErrors.DeviceNotFound.Description);
+
+        deviceRepository.Remove(device);
+        await unitOfWork.CompleteAsync(cancellationToken);
+        return new Result<bool, string>.Success(true);
+    }
 }
