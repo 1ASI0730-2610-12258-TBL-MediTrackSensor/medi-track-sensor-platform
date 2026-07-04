@@ -239,7 +239,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pers
                     b.ToTable("devices");
                 });
 
-            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Aggregates.Transport", b =>
+            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.Aggregates.Transport", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
