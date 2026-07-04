@@ -187,6 +187,49 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pers
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Aggregates.Admin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EntityCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("entity_code");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400)")
+                        .HasColumnName("entity_name");
+
+                    b.Property<string>("Schedule")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("schedule");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("users_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_admins");
+
+                    b.ToTable("admins");
+                });
+
             modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Aggregates.Device", b =>
                 {
                     b.Property<int>("Id")

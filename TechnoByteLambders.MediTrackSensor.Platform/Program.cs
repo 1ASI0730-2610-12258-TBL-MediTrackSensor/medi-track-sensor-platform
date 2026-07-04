@@ -4,6 +4,8 @@ using Microsoft.Extensions.Localization;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.OutboundServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.Internal.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.OutboundServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Infrastructure.Persistence.EFC.Repositories;
@@ -117,6 +119,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // IAM
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAdminQueryService, AdminQueryService>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
