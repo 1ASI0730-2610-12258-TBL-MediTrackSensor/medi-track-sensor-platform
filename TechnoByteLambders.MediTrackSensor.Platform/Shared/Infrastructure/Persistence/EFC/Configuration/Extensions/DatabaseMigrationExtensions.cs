@@ -33,7 +33,18 @@ public static class DatabaseMigrationExtensions
 
         foreach (var (migrationId, tableName, productVersion) in KnownMigrations)
         {
-            if (!TableExists(database, tableName) || MigrationExists(database, migrationId))
+            var tableExists = TableExists(database, tableName);
+            var migrationExists = MigrationExists(database, migrationId);
+
+            if (migrationExists && !tableExists)
+            {
+                database.ExecuteSqlRaw(
+                    "DELETE FROM `__EFMigrationsHistory` WHERE `MigrationId` = {0}",
+                    migrationId);
+                continue;
+            }
+
+            if (!tableExists || migrationExists)
                 continue;
 
             database.ExecuteSqlRaw(
