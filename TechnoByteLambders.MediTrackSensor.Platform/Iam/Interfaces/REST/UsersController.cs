@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Aggregates;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Errors;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Queries;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST.Transform;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
@@ -15,8 +17,16 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST;
 [Route("api/v1/users")]
 public class UsersController(
     IUserCommandService userCommandService,
+    IUserQueryService userQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var users = await userQueryService.Handle(new GetAllUsersQuery(), ct);
+        return Ok(users.Select(UserResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost]
     public async Task<IActionResult> SignUp([FromBody] SignUpResource resource, CancellationToken ct)
     {
