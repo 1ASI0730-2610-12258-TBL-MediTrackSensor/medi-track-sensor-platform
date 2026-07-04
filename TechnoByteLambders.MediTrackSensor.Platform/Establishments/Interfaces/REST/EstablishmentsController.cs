@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Commands;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Errors;
+using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.Queries;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Domain.Model.ValueObjects;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.REST.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.REST.Transform;
@@ -14,8 +16,16 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.
 [Route("api/v1/establishments")]
 public class EstablishmentsController(
     IEstablishmentCommandService establishmentCommandService,
+    IEstablishmentQueryService queryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var items = await queryService.Handle(new GetAllEstablishmentsQuery(), ct);
+        return Ok(items.Select(EstablishmentResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateEstablishmentResource resource,
