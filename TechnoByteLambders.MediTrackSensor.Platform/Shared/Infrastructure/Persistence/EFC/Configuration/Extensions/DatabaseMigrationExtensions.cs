@@ -18,7 +18,37 @@ public static class DatabaseMigrationExtensions
     public static void ApplyPendingMigrations(this DatabaseFacade database)
     {
         SyncMigrationHistoryIfNeeded(database);
+        EnsureAdminsTable(database);
         database.GetService<IMigrator>().Migrate();
+    }
+
+    private static void EnsureAdminsTable(DatabaseFacade database)
+    {
+        if (TableExists(database, "admins"))
+            return;
+
+        const string migrationId = "20260704130000_AddAdminsTable";
+
+        database.ExecuteSqlRaw("""
+            CREATE TABLE IF NOT EXISTS `admins` (
+                `id` int NOT NULL AUTO_INCREMENT,
+                `entity_name` varchar(400) NOT NULL,
+                `entity_code` varchar(20) NOT NULL,
+                `schedule` varchar(100) NOT NULL,
+                `users_id` int NOT NULL,
+                `created_at` datetime NULL,
+                `updated_at` datetime NULL,
+                PRIMARY KEY (`id`)
+            ) CHARACTER SET utf8mb4;
+            """);
+
+        if (!MigrationExists(database, migrationId))
+        {
+            database.ExecuteSqlRaw(
+                "INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`) VALUES ({0}, {1})",
+                migrationId,
+                "10.0.1");
+        }
     }
 
     private static void SyncMigrationHistoryIfNeeded(DatabaseFacade database)
