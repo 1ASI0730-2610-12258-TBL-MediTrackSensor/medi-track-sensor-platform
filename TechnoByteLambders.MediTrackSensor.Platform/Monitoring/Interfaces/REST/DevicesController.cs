@@ -14,6 +14,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Interfaces.REST
 
 [ApiController]
 [Route("api/v1/devices")]
+[Tags("Devices")]
 public class DevicesController(
     IDeviceCommandService deviceCommandService,
     IDeviceQueryService queryService,

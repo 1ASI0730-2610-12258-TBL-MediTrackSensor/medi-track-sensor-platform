@@ -14,6 +14,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.
 
 [ApiController]
 [Route("api/v1/establishments")]
+[Tags("Establishments")]
 public class EstablishmentsController(
     IEstablishmentCommandService establishmentCommandService,
     IEstablishmentQueryService queryService,

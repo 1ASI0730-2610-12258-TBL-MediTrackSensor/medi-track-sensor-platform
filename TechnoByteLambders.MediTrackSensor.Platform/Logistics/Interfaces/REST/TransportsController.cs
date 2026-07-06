@@ -10,7 +10,8 @@ using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Interfaces.REST.Tran
 namespace TechnoByteLambders.MediTrackSensor.Platform.Logistics.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/transports")]
+[Tags("Transports")]
 public class TransportsController(
     ITransportCommandService commandService,
     ITransportQueryService queryService) : ControllerBase

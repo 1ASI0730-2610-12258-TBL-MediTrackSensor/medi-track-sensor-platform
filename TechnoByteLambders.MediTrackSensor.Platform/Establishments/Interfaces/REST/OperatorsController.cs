@@ -12,7 +12,8 @@ using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared
 namespace TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/operators")]
+[Tags("Operators")]
 public class OperatorsController(
     IOperatorCommandService operatorCommandService,
     IOperatorQueryService queryService,

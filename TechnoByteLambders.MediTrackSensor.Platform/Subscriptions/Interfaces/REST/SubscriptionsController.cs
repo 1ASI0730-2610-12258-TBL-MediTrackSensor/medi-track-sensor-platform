@@ -10,7 +10,8 @@ using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST.
 namespace TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/subscriptions")]
+[Tags("Subscriptions")]
 public class SubscriptionsController(
     ISubscriptionCommandService commandService,
     ISubscriptionQueryService queryService) : ControllerBase

@@ -281,24 +281,46 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pers
 
             modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.Aggregates.Transport", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("CurrentHumidity")
-                        .HasPrecision(4, 1)
-                        .HasColumnType("decimal(4,1)")
-                        .HasColumnName("current_humidity");
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
 
-                    b.Property<decimal>("CurrentTemperature")
-                        .HasPrecision(4, 1)
-                        .HasColumnType("decimal(4,1)")
-                        .HasColumnName("current_temperature");
+                    b.Property<string>("DoorStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("door_status");
 
-                    b.Property<DateTime>("LastSensorUpdate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("last_sensor_update");
+                    b.Property<string>("EnabledSensors")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasDefaultValue("")
+                        .HasColumnName("enabled_sensors");
+
+                    b.Property<int>("EstablishmentId")
+                        .HasColumnType("int")
+                        .HasColumnName("establishment_id");
+
+                    b.Property<string>("TypeOfMedication")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("type_of_medication");
+
+                    b.Property<string>("TypeOfTransport")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("type_of_transport");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("p_k_transports");
@@ -485,6 +507,63 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Pers
                             b1.WithOwner()
                                 .HasForeignKey("DeviceId")
                                 .HasConstraintName("f_k_devices_devices_id");
+                        });
+
+                    b.Navigation("SensorReading")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.Aggregates.Transport", b =>
+                {
+                    b.OwnsOne("TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.ValueObjects.SensorReading", "SensorReading", b1 =>
+                        {
+                            b1.Property<int>("TransportId")
+                                .HasColumnType("int")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("AirQuality")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("decimal(6,1)")
+                                .HasColumnName("air_quality");
+
+                            b1.Property<decimal>("AtmosphericPressure")
+                                .HasPrecision(6, 2)
+                                .HasColumnType("decimal(6,2)")
+                                .HasColumnName("atmospheric_pressure");
+
+                            b1.Property<decimal>("Humidity")
+                                .HasPrecision(4, 1)
+                                .HasColumnType("decimal(4,1)")
+                                .HasColumnName("humidity");
+
+                            b1.Property<decimal>("LightIntensity")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("decimal(6,1)")
+                                .HasColumnName("light_intensity");
+
+                            b1.Property<decimal>("SuspendedParticles")
+                                .HasPrecision(5, 1)
+                                .HasColumnType("decimal(5,1)")
+                                .HasColumnName("suspended_particles");
+
+                            b1.Property<decimal>("Temperature")
+                                .HasPrecision(4, 1)
+                                .HasColumnType("decimal(4,1)")
+                                .HasColumnName("temperature");
+
+                            b1.Property<decimal>("Vibration")
+                                .HasPrecision(5, 2)
+                                .HasColumnType("decimal(5,2)")
+                                .HasColumnName("vibration");
+
+                            b1.HasKey("TransportId")
+                                .HasName("p_k_transports");
+
+                            b1.ToTable("transports");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TransportId")
+                                .HasConstraintName("f_k_transports_transports_id");
                         });
 
                     b.Navigation("SensorReading")
