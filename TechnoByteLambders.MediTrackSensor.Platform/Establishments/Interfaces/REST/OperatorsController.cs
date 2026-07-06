@@ -27,6 +27,7 @@ public class OperatorsController(
     }
 
     [HttpPost]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> Create(
         [FromBody] CreateOperatorResource resource,
         CancellationToken cancellationToken)
@@ -67,6 +68,7 @@ public class OperatorsController(
     }
 
     [HttpPut("{id:int}")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> Update(
         int id,
         [FromBody] UpdateOperatorResource resource,
@@ -93,6 +95,38 @@ public class OperatorsController(
                         StatusCodes.Status400BadRequest,
                         EstablishmentsError.OperatorUpdateFailed,
                         EstablishmentsErrors.OperatorUpdateFailed.Description),
+                    _ => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status500InternalServerError,
+                        EstablishmentsError.InternalServerError,
+                        EstablishmentsErrors.InternalServerError.Description)
+                },
+            _ => problemDetailsFactory.CreateProblemDetails(
+                this,
+                StatusCodes.Status500InternalServerError,
+                EstablishmentsError.InternalServerError,
+                EstablishmentsErrors.InternalServerError.Description)
+        };
+    }
+
+    [HttpPut("{id:int}/alert-answered")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<IActionResult> IncrementAlert(int id, CancellationToken cancellationToken)
+    {
+        var result = await operatorCommandService.Handle(new IncrementOperatorAlertCommand(id), cancellationToken);
+
+        return result switch
+        {
+            Result<Domain.Model.Aggregates.Operator, EstablishmentsError>.Success success =>
+                Ok(OperatorResourceFromEntityAssembler.ToResourceFromEntity(success.Value)),
+            Result<Domain.Model.Aggregates.Operator, EstablishmentsError>.Failure failure =>
+                failure.Error switch
+                {
+                    EstablishmentsError.OperatorNotFound => problemDetailsFactory.CreateProblemDetails(
+                        this,
+                        StatusCodes.Status404NotFound,
+                        EstablishmentsError.OperatorNotFound,
+                        EstablishmentsErrors.OperatorNotFound.Description),
                     _ => problemDetailsFactory.CreateProblemDetails(
                         this,
                         StatusCodes.Status500InternalServerError,

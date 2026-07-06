@@ -13,24 +13,26 @@ using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared
 namespace TechnoByteLambders.MediTrackSensor.Platform.Establishments.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/establishments")]
+[Route("api/v1/admins/{adminId:int}/establishments")]
 [Tags("Establishments")]
-public class EstablishmentsController(
+public class AdminEstablishmentsController(
     IEstablishmentCommandService establishmentCommandService,
     IEstablishmentQueryService queryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    public async Task<IActionResult> GetByAdmin(int adminId, CancellationToken ct)
     {
         var items = await queryService.Handle(new GetAllEstablishmentsQuery(), ct);
-        return Ok(items.Select(EstablishmentResourceFromEntityAssembler.ToResourceFromEntity));
+        return Ok(items
+            .Where(e => e.AdminId.Value == adminId)
+            .Select(EstablishmentResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpPost]
-    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> Create(
-        [FromBody] CreateEstablishmentResource resource,
+        int adminId,
+        [FromBody] CreateNestedEstablishmentResource resource,
         CancellationToken cancellationToken)
     {
         var command = new CreateEstablishmentCommand(
@@ -41,14 +43,15 @@ public class EstablishmentsController(
             resource.Phone,
             resource.Email,
             resource.Website,
-            resource.AdminId);
+            adminId);
 
         var result = await establishmentCommandService.Handle(command, cancellationToken);
 
         return result switch
         {
             Result<Domain.Model.Aggregates.Establishment, EstablishmentsError>.Success success =>
-                Ok(EstablishmentResourceFromEntityAssembler.ToResourceFromEntity(success.Value)),
+                Created($"/api/v1/establishments/{success.Value.Id}",
+                    EstablishmentResourceFromEntityAssembler.ToResourceFromEntity(success.Value)),
             Result<Domain.Model.Aggregates.Establishment, EstablishmentsError>.Failure failure =>
                 failure.Error switch
                 {
@@ -69,13 +72,5 @@ public class EstablishmentsController(
                 EstablishmentsError.InternalServerError,
                 EstablishmentsErrors.InternalServerError.Description)
         };
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken ct)
-    {
-        var result = await establishmentCommandService.DeleteAsync(id, ct);
-        if (result.IsFailure) return NotFound(new { error = ((dynamic)result).Error });
-        return NoContent();
     }
 }

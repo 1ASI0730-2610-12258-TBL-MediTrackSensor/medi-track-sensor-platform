@@ -64,10 +64,17 @@ builder.Services.AddSwaggerGen(options =>
         Title = "MediTrack Sensor API",
         Version = "v1",
         Description =
-            "REST API v1 — recursos en plural, JSON en snake_case. " +
-            "Cada POST/PUT incluye un ejemplo listo para probar en Swagger UI."
+            "REST API v1 anidada — recursos hijo bajo su padre en la URL " +
+            "(ej. POST /establishments/{id}/devices). JSON en snake_case. " +
+            "Cada POST/PUT incluye un ejemplo listo para probar."
+    });
+    options.AddServer(new Microsoft.OpenApi.Models.OpenApiServer
+    {
+        Url = "https://medi-track-sensor-platform.onrender.com",
+        Description = "Render (producción)"
     });
     options.OperationFilter<SwaggerRequestExamplesFilter>();
+    options.DocumentFilter<SwaggerInfrastructureFilter>();
 });
 
 builder.Services.AddCors(options =>
@@ -161,7 +168,8 @@ builder.Services.AddScoped<ISubscriptionQueryService, SubscriptionQueryService>(
 
 var app = builder.Build();
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "medi-track-sensor-platform" }));
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "medi-track-sensor-platform" }))
+    .ExcludeFromDescription();
 app.MapGet("/health/db", async (AppDbContext db, ILogger<Program> logger) =>
 {
     try
@@ -178,8 +186,8 @@ app.MapGet("/health/db", async (AppDbContext db, ILogger<Program> logger) =>
         logger.LogError(ex, "Database health check failed.");
         return Results.Json(new { status = "unhealthy", database = "error", detail = ex.Message }, statusCode: 503);
     }
-});
-app.MapGet("/", () => Results.Redirect("/swagger"));
+}).ExcludeFromDescription();
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 using (var scope = app.Services.CreateScope())
 {

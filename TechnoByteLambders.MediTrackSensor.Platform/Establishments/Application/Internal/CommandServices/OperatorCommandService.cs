@@ -81,4 +81,26 @@ public class OperatorCommandService(
             return new Result<bool, EstablishmentsError>.Failure(EstablishmentsError.OperatorDeleteFailed);
         }
     }
+
+    public async Task<Result<Operator, EstablishmentsError>> Handle(
+        IncrementOperatorAlertCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var op = await operatorRepository.FindByIdAsync(command.Id, cancellationToken);
+        if (op is null)
+            return new Result<Operator, EstablishmentsError>.Failure(EstablishmentsError.OperatorNotFound);
+
+        op.IncrementAlertsAnswered();
+
+        try
+        {
+            operatorRepository.Update(op);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return new Result<Operator, EstablishmentsError>.Success(op);
+        }
+        catch (Exception)
+        {
+            return new Result<Operator, EstablishmentsError>.Failure(EstablishmentsError.OperatorUpdateFailed);
+        }
+    }
 }
