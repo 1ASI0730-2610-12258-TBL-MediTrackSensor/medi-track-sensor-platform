@@ -25,4 +25,10 @@ public partial class Operator(int alertsAnswered, string schedule, int establish
         EstablishmentId = establishmentId;
         return this;
     }
+
+    public Operator IncrementAlertsAnswered()
+    {
+        AlertsAnswered++;
+        return this;
+    }
 }

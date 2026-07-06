@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Model.Commands;
@@ -13,41 +13,52 @@ using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared
 namespace TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/devices")]
+[Route("api/v1/establishments/{establishmentId:int}/devices")]
 [Tags("Devices")]
-public class DevicesController(
+public class EstablishmentDevicesController(
     IDeviceCommandService deviceCommandService,
     IDeviceQueryService queryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    public async Task<IActionResult> GetByEstablishment(int establishmentId, CancellationToken ct)
     {
         var items = await queryService.Handle(new GetAllDevicesQuery(), ct);
-        return Ok(items.Select(DeviceResourceFromEntityAssembler.ToResourceFromEntity));
+        return Ok(items
+            .Where(d => d.EstablishmentId.Value == establishmentId)
+            .Select(DeviceResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpPost]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<IActionResult> Create([FromBody] CreateDeviceResource resource, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(
+        int establishmentId,
+        [FromBody] CreateNestedDeviceResource resource,
+        CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<TypeOfMedication>(resource.TypeOfMedication, true, out var medication))
             return BadRequest(new { error = "Invalid TypeOfMedication value." });
 
         var result = await deviceCommandService.Handle(
-            new CreateDeviceCommand(resource.ExactLocation, medication, resource.EstablishmentId, resource.EnabledSensors ?? ""), cancellationToken);
+            new CreateDeviceCommand(resource.ExactLocation, medication, establishmentId, resource.EnabledSensors ?? ""),
+            cancellationToken);
 
         if (result.IsFailure) return BadRequest(new { error = ((dynamic)result).Error });
-        return Ok(DeviceResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
+        return Created(
+            $"/api/v1/establishments/{establishmentId}/devices/{((dynamic)result).Value.Id}",
+            DeviceResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
     }
 
-    [HttpPut("{id:int}/sensor-data")]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    [HttpPut("{deviceId:int}/sensor-data")]
     public async Task<IActionResult> UpdateSensorData(
-        int id,
+        int establishmentId,
+        int deviceId,
         [FromBody] UpdateDeviceSensorDataResource resource,
         CancellationToken cancellationToken)
     {
+        var items = await queryService.Handle(new GetAllDevicesQuery(), cancellationToken);
+        if (items.All(d => d.Id != deviceId || d.EstablishmentId.Value != establishmentId))
+            return NotFound();
+
         if (!Enum.TryParse<DoorStatus>(resource.DoorStatus, true, out var doorStatus))
         {
             return problemDetailsFactory.CreateProblemDetails(
@@ -67,7 +78,7 @@ public class DevicesController(
             resource.SuspendedParticles);
 
         var result = await deviceCommandService.Handle(
-            new UpdateDeviceSensorDataCommand(id, reading, doorStatus),
+            new UpdateDeviceSensorDataCommand(deviceId, reading, doorStatus),
             cancellationToken);
 
         return result switch
@@ -82,16 +93,11 @@ public class DevicesController(
                         StatusCodes.Status404NotFound,
                         MonitoringError.DeviceNotFound,
                         MonitoringErrors.DeviceNotFound.Description),
-                    MonitoringError.DeviceUpdateFailed => problemDetailsFactory.CreateProblemDetails(
+                    _ => problemDetailsFactory.CreateProblemDetails(
                         this,
                         StatusCodes.Status400BadRequest,
                         MonitoringError.DeviceUpdateFailed,
-                        MonitoringErrors.DeviceUpdateFailed.Description),
-                    _ => problemDetailsFactory.CreateProblemDetails(
-                        this,
-                        StatusCodes.Status500InternalServerError,
-                        MonitoringError.InternalServerError,
-                        MonitoringErrors.InternalServerError.Description)
+                        MonitoringErrors.DeviceUpdateFailed.Description)
                 },
             _ => problemDetailsFactory.CreateProblemDetails(
                 this,
@@ -101,10 +107,14 @@ public class DevicesController(
         };
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    [HttpDelete("{deviceId:int}")]
+    public async Task<IActionResult> Delete(int establishmentId, int deviceId, CancellationToken ct)
     {
-        var result = await deviceCommandService.DeleteAsync(id, ct);
+        var items = await queryService.Handle(new GetAllDevicesQuery(), ct);
+        if (items.All(d => d.Id != deviceId || d.EstablishmentId.Value != establishmentId))
+            return NotFound();
+
+        var result = await deviceCommandService.DeleteAsync(deviceId, ct);
         if (result.IsFailure) return NotFound(new { error = ((dynamic)result).Error });
         return NoContent();
     }

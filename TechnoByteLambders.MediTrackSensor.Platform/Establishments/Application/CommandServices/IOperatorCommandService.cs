@@ -18,4 +18,8 @@ public interface IOperatorCommandService
     Task<Result<bool, EstablishmentsError>> Handle(
         DeleteOperatorCommand command,
         CancellationToken cancellationToken = default);
+
+    Task<Result<Operator, EstablishmentsError>> Handle(
+        IncrementOperatorAlertCommand command,
+        CancellationToken cancellationToken = default);
 }
