@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using TechnoByteLambders.MediTrackSensor.Platform.Iam.Domain.Model.Aggregates;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Establishments.Application.Internal.QueryServices;
@@ -102,7 +103,9 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 
     if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(port) && !string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
     {
-        connectionString = $"server={host};port={port};database={database};user={user};password={password}";
+        connectionString =
+            $"server={host};port={port};database={database};user={user};password={password};" +
+            "SslMode=Preferred;CharSet=utf8mb4;AllowPublicKeyRetrieval=true;";
     }
     else
     {
@@ -159,7 +162,39 @@ builder.Services.AddScoped<ISubscriptionQueryService, SubscriptionQueryService>(
 var app = builder.Build();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "medi-track-sensor-platform" }));
+app.MapGet("/health/db", async (AppDbContext db, ILogger<Program> logger) =>
+{
+    try
+    {
+        var canConnect = await db.Database.CanConnectAsync();
+        if (!canConnect)
+            return Results.Json(new { status = "unhealthy", database = "cannot_connect" }, statusCode: 503);
+
+        var userCount = await db.Set<User>().CountAsync();
+        return Results.Ok(new { status = "healthy", database = "connected", users = userCount });
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database health check failed.");
+        return Results.Json(new { status = "unhealthy", database = "error", detail = ex.Message }, statusCode: 503);
+    }
+});
 app.MapGet("/", () => Results.Redirect("/swagger"));
+
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Database.ApplyPendingMigrations();
+        logger.LogInformation("Database migrations completed at startup.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration failed at startup.");
+    }
+}
 
 app.Lifetime.ApplicationStarted.Register(() =>
 {
@@ -171,12 +206,12 @@ app.Lifetime.ApplicationStarted.Register(() =>
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             context.Database.ApplyPendingMigrations();
-            logger.LogInformation("Database migrations completed.");
+            logger.LogInformation("Database migrations verified after startup.");
         }
         catch (Exception ex)
         {
             var logger = app.Services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "Database migration failed; API will continue serving requests.");
+            logger.LogError(ex, "Database migration verification failed.");
         }
     });
 });
@@ -196,6 +231,8 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "MediTrack Sensor API v1");
     options.RoutePrefix = "swagger";
     options.DocumentTitle = "MediTrack Sensor — REST API";
+    options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+    options.DisplayRequestDuration();
 });
 if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();

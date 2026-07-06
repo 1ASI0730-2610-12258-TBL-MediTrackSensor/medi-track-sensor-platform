@@ -21,14 +21,11 @@ public static class DatabaseMigrationExtensions
         EnsureAdminsTable(database);
         EnsureTransportsTable(database);
 
-        try
-        {
-            database.GetService<IMigrator>().Migrate();
-        }
-        catch
-        {
-            // Tables were ensured manually; ignore snapshot drift on Render.
-        }
+        // If core tables are missing but history says migrated, reset and re-apply.
+        if (!TableExists(database, "users"))
+            database.ExecuteSqlRaw("DELETE FROM `__EFMigrationsHistory`");
+
+        database.GetService<IMigrator>().Migrate();
     }
 
     private static void EnsureAdminsTable(DatabaseFacade database)
