@@ -29,6 +29,7 @@ using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Domain.Repositories
 using TechnoByteLambders.MediTrackSensor.Platform.Monitoring.Infrastructure.Persistence.EFC.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Interfaces.ASP.Configuration;
+using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.Persistence.EFC.Repositories;
@@ -96,28 +97,7 @@ builder.Services.AddSingleton<ProblemDetailsFactory>();
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
-    string connectionString;
-
-    var host = Environment.GetEnvironmentVariable("DATABASE_HOST");
-    var port = Environment.GetEnvironmentVariable("DATABASE_PORT");
-    var database = Environment.GetEnvironmentVariable("DATABASE_NAME");
-    var user = Environment.GetEnvironmentVariable("DATABASE_USER");
-    var password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
-
-    if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(port) && !string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
-    {
-        connectionString =
-            $"server={host};port={port};database={database};user={user};password={password};" +
-            "SslMode=Preferred;CharSet=utf8mb4;AllowPublicKeyRetrieval=true;";
-    }
-    else
-    {
-        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        connectionString = Environment.ExpandEnvironmentVariables(connectionString);
-    }
-
-    if (string.IsNullOrWhiteSpace(connectionString))
-        throw new InvalidOperationException("Database connection string is not set in the configuration.");
+    var connectionString = DatabaseConnectionResolver.Resolve(builder.Configuration);
 
     options.UseMySQL(connectionString)
         .UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>())
@@ -170,9 +150,8 @@ app.MapGet("/health/db", async (AppDbContext db, ILogger<Program> logger) =>
 {
     try
     {
-        var canConnect = await db.Database.CanConnectAsync();
-        if (!canConnect)
-            return Results.Json(new { status = "unhealthy", database = "cannot_connect" }, statusCode: 503);
+        await db.Database.OpenConnectionAsync();
+        await db.Database.CloseConnectionAsync();
 
         var userCount = await db.Set<User>().CountAsync();
         return Results.Ok(new { status = "healthy", database = "connected", users = userCount });
@@ -180,7 +159,9 @@ app.MapGet("/health/db", async (AppDbContext db, ILogger<Program> logger) =>
     catch (Exception ex)
     {
         logger.LogError(ex, "Database health check failed.");
-        return Results.Json(new { status = "unhealthy", database = "error", detail = ex.Message }, statusCode: 503);
+        return Results.Json(
+            new { status = "unhealthy", database = "error", detail = ex.Message },
+            statusCode: 503);
     }
 }).ExcludeFromDescription();
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
@@ -188,15 +169,25 @@ app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 using (var scope = app.Services.CreateScope())
 {
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    try
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    for (var attempt = 1; attempt <= 6; attempt++)
     {
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        context.Database.ApplyPendingMigrations();
-        logger.LogInformation("Database migrations completed at startup.");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Database migration failed at startup.");
+        try
+        {
+            context.Database.ApplyPendingMigrations();
+            logger.LogInformation("Database migrations completed at startup (attempt {Attempt}).", attempt);
+            break;
+        }
+        catch (Exception ex) when (attempt < 6)
+        {
+            logger.LogWarning(ex, "Database migration attempt {Attempt} failed; retrying in 10s...", attempt);
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Database migration failed after {Attempt} attempts.", attempt);
+        }
     }
 }
 
