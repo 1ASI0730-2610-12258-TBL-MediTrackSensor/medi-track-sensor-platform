@@ -62,9 +62,7 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "MediTrack Sensor API",
-        Version = "v1",
-        Description =
-            "API REST v1 de MediTrack Sensor. Ver guía de pruebas abajo en esta página."
+        Version = "v1"
     });
     options.AddServer(new Microsoft.OpenApi.Models.OpenApiServer
     {
@@ -72,7 +70,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Render (producción)"
     });
     options.OperationFilter<SwaggerEndpointDocumentationFilter>();
-    options.DocumentFilter<SwaggerTestingGuideFilter>();
     options.DocumentFilter<SwaggerInfrastructureFilter>();
 });
 
