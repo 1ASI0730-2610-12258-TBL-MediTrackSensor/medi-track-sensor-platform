@@ -40,6 +40,7 @@ using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.Inte
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Application.QueryServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Repositories;
 using TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Infrastructure.Persistence.EFC.Repositories;
+using TechnoByteLambders.MediTrackSensor.Platform.Shared.Infrastructure.OpenApi;
 using ProblemDetailsFactory = TechnoByteLambders.MediTrackSensor.Platform.Shared.Interfaces.REST.ProblemDetails.ProblemDetailsFactory;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,7 +56,18 @@ builder.Services.AddControllers(options => options.Conventions.Add(new KebabCase
 
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "MediTrack Sensor API",
+        Version = "v1",
+        Description =
+            "REST API v1 — recursos en plural, JSON en snake_case. " +
+            "Cada POST/PUT incluye un ejemplo listo para probar en Swagger UI."
+    });
+    options.OperationFilter<SwaggerRequestExamplesFilter>();
+});
 
 builder.Services.AddCors(options =>
 {
@@ -178,11 +190,12 @@ var localizationOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 app.UseRequestLocalization(localizationOptions);
 
-app.MapOpenApi();
+app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
-    options.SwaggerEndpoint("/openapi/v1.json", "MediTrack Sensor API v1");
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "MediTrack Sensor API v1");
     options.RoutePrefix = "swagger";
+    options.DocumentTitle = "MediTrack Sensor — REST API";
 });
 if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();

@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Application.CommandServices;
 using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Application.QueryServices;
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.Aggregates;
 using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.Commands;
+using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.Errors;
 using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.Queries;
 using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Domain.Model.ValueObjects;
 using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Interfaces.REST.Resources;
 using TechnoByteLambders.MediTrackSensor.Platform.Logistics.Interfaces.REST.Transform;
+using TechnoByteLambders.MediTrackSensor.Platform.Shared.Application.Patterns;
 
 namespace TechnoByteLambders.MediTrackSensor.Platform.Logistics.Interfaces.REST;
 
@@ -31,8 +34,11 @@ public class TransportsController(
 
         var result = await commandService.Handle(
             new CreateTransportCommand(resource.TypeOfTransport, medication, resource.EstablishmentId, resource.EnabledSensors ?? ""), ct);
-        if (result.IsFailure) return BadRequest(new { error = ((dynamic)result).Error });
-        return Ok(TransportResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
+        if (result is Result<Transport, string>.Failure failure)
+            return BadRequest(new { error = failure.Error });
+        if (result is Result<Transport, string>.Success success)
+            return Ok(TransportResourceFromEntityAssembler.ToResourceFromEntity(success.Value));
+        return BadRequest(new { error = "Unknown error." });
     }
 
     [HttpPut("{id:int}/sensor-data")]
@@ -45,8 +51,15 @@ public class TransportsController(
             resource.AirQuality, resource.Vibration, resource.AtmosphericPressure, resource.SuspendedParticles);
 
         var result = await commandService.Handle(new UpdateTransportSensorDataCommand(id, reading, doorStatus), ct);
-        if (result.IsFailure) return BadRequest(new { error = ((dynamic)result).Error });
-        return Ok(TransportResourceFromEntityAssembler.ToResourceFromEntity(((dynamic)result).Value));
+        if (result is Result<Transport, string>.Failure failure)
+        {
+            if (failure.Error == LogisticsErrors.TransportNotFound.Description)
+                return NotFound(new { error = failure.Error });
+            return BadRequest(new { error = failure.Error });
+        }
+        if (result is Result<Transport, string>.Success success)
+            return Ok(TransportResourceFromEntityAssembler.ToResourceFromEntity(success.Value));
+        return BadRequest(new { error = "Unknown error." });
     }
 
     [HttpDelete("{id:int}")]

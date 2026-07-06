@@ -19,4 +19,10 @@ public partial class Operator(int alertsAnswered, string schedule, int establish
         Schedule = schedule;
         return this;
     }
+
+    public Operator UpdateEstablishment(int establishmentId)
+    {
+        EstablishmentId = establishmentId;
+        return this;
+    }
 }
