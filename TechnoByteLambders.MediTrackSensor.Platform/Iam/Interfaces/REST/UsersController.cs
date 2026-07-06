@@ -16,6 +16,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST;
 
 [ApiController]
 [Route("api/v1/users")]
+[Tags("Users")]
 public class UsersController(
     IUserCommandService userCommandService,
     IUserQueryService userQueryService,

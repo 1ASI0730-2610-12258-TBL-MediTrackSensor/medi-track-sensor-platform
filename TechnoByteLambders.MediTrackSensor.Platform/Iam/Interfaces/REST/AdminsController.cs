@@ -11,6 +11,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Iam.Interfaces.REST;
 
 [ApiController]
 [Route("api/v1/admins")]
+[Tags("Admins")]
 public class AdminsController(IAdminCommandService adminCommandService, IAdminQueryService adminQueryService) : ControllerBase
 {
     [HttpGet]

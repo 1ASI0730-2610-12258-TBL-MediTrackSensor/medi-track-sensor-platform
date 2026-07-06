@@ -146,11 +146,28 @@ builder.Services.AddScoped<ISubscriptionQueryService, SubscriptionQueryService>(
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "medi-track-sensor-platform" }));
+app.MapGet("/", () => Results.Redirect("/swagger"));
+
+app.Lifetime.ApplicationStarted.Register(() =>
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.ApplyPendingMigrations();
-}
+    _ = Task.Run(() =>
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            context.Database.ApplyPendingMigrations();
+            logger.LogInformation("Database migrations completed.");
+        }
+        catch (Exception ex)
+        {
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "Database migration failed; API will continue serving requests.");
+        }
+    });
+});
 
 app.UseGlobalExceptionHandler();
 
@@ -165,8 +182,10 @@ app.MapOpenApi();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/openapi/v1.json", "MediTrack Sensor API v1");
+    options.RoutePrefix = "swagger";
 });
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
 app.UseAuthorization();
 app.MapControllers();

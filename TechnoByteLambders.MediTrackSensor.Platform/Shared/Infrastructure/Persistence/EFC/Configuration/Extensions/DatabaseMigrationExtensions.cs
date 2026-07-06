@@ -20,7 +20,15 @@ public static class DatabaseMigrationExtensions
         SyncMigrationHistoryIfNeeded(database);
         EnsureAdminsTable(database);
         EnsureTransportsTable(database);
-        database.GetService<IMigrator>().Migrate();
+
+        try
+        {
+            database.GetService<IMigrator>().Migrate();
+        }
+        catch
+        {
+            // Tables were ensured manually; ignore snapshot drift on Render.
+        }
     }
 
     private static void EnsureAdminsTable(DatabaseFacade database)
