@@ -11,7 +11,7 @@ public partial class Subscription(
     AdminId adminId)
 {
     public Subscription() : this(
-        SubscriptionPlan.Free,
+        SubscriptionPlan.Basic,
         DateOnly.MinValue,
         DateOnly.MinValue,
         SubscriptionStatus.Pending,

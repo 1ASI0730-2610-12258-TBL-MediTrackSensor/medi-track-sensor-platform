@@ -2,7 +2,7 @@ namespace TechnoByteLambders.MediTrackSensor.Platform.Subscriptions.Domain.Model
 
 public enum SubscriptionPlan
 {
-    Free,
-    Silver,
-    Gold
+    Basic,
+    Premium,
+    Enterprise
 }

@@ -44,7 +44,11 @@ public class OperatorCommandService(
         if (op is null)
             return new Result<Operator, EstablishmentsError>.Failure(EstablishmentsError.OperatorNotFound);
 
-        op.UpdateSchedule(command.Schedule);
+        var establishment = await establishmentRepository.FindByIdAsync(command.EstablishmentId, cancellationToken);
+        if (establishment is null)
+            return new Result<Operator, EstablishmentsError>.Failure(EstablishmentsError.EstablishmentNotFound);
+
+        op.UpdateSchedule(command.Schedule).UpdateEstablishment(command.EstablishmentId);
 
         try
         {
