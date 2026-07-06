@@ -64,16 +64,15 @@ builder.Services.AddSwaggerGen(options =>
         Title = "MediTrack Sensor API",
         Version = "v1",
         Description =
-            "REST API v1 anidada — recursos hijo bajo su padre en la URL " +
-            "(ej. POST /establishments/{id}/devices). JSON en snake_case. " +
-            "Cada POST/PUT incluye un ejemplo listo para probar."
+            "API REST v1 de MediTrack Sensor. Ver guía de pruebas abajo en esta página."
     });
     options.AddServer(new Microsoft.OpenApi.Models.OpenApiServer
     {
         Url = "https://medi-track-sensor-platform.onrender.com",
         Description = "Render (producción)"
     });
-    options.OperationFilter<SwaggerRequestExamplesFilter>();
+    options.OperationFilter<SwaggerEndpointDocumentationFilter>();
+    options.DocumentFilter<SwaggerTestingGuideFilter>();
     options.DocumentFilter<SwaggerInfrastructureFilter>();
 });
 
