@@ -137,6 +137,6 @@ public sealed class SwaggerRequestExamplesFilter : IOperationFilter
             operation.RequestBody.Content["application/json"] = new OpenApiMediaType();
 
         operation.RequestBody.Content["application/json"].Example =
-            new OpenApiString(json.Trim());
+            OpenApiAnyFactory.CreateFromJson(json.Trim());
     }
 }
